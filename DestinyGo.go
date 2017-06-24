@@ -7,10 +7,11 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"errors"
+	"./models"
 )
 
 const (
-	ApiUrl = "http://www.bungie.net/Platform/Destiny/"
+	ApiUrl = "https://www.bungie.net/Platform/Destiny/"
 )
 
 var (
@@ -28,21 +29,9 @@ func main() {
 	}
 	DisplayName = string(readKey)
 
-	// Build the request
-	destinyUrl := ApiUrl + MembershipType + "/Stats/GetMembershipIdByDisplayName/" + DisplayName
-
-	// Convert the body into something usable
-	var bodyData, bodyErr = getBodyData(destinyUrl)
-	if bodyErr != nil {
-		log.Fatal("bodyErr: ", bodyErr)
-		return 
-	}
-
-	// Show off information
-	for index, element := range bodyData {
-		fmt.Printf("Type %T ", element)
-		fmt.Println(index, element)
-	}
+	// Get the membership ID and display the account's character summaries
+	memID, _ := getMembershipIdByDisplayName(DisplayName)
+	characterSummary(memID)
 }
 
 // Grab an API key from a local file
@@ -56,19 +45,20 @@ func getAPIKey() (string, error) {
 }
 
 // Make a GET request to the supplied url
-func getBodyData(url string) (map[string]interface{}, error) {
+func getBody(url string) ([]byte, error) {
+	// Build the request
 	req, reqErr := http.NewRequest("GET", url, nil)
 	if reqErr != nil {
 		log.Fatal("reqErr: ", reqErr)
 		return nil, errors.New("Error building NewRequest")
 	}
 
+	// Grab the API key to add to the request
 	apiKey, apiErr := getAPIKey()
 	if apiErr != nil {
 		log.Fatal("apiErr: ", apiErr)
 		return nil, errors.New("Error getting API key")
 	}
-
 	req.Header.Add("X-API-Key", apiKey)
 
 	// Build the client and send the request
@@ -89,18 +79,56 @@ func getBodyData(url string) (map[string]interface{}, error) {
 		return nil, errors.New("Error reading response body")
 	}
 
-	// Convert the body into something usable
+	return body, nil
+}
+
+// Retrieve the membership ID associated with the displayName
+func getMembershipIdByDisplayName(displayName string) (string, error) {
+	url := ApiUrl + MembershipType + "/Stats/GetMembershipIdByDisplayName/" + displayName
+
+	// Get and parse the response body
+	var body, bodyErr = getBody(url)
+	if bodyErr != nil {
+		log.Fatal("bodyErr: ", bodyErr)
+		return "", errors.New("Error getting body")
+	}
+
 	var bodyData map[string]interface{}
 	jsonErr := json.Unmarshal(body, &bodyData)
 	if jsonErr != nil {
 		log.Fatal("jsonErr: ", jsonErr)
-		return nil, errors.New("Error Unmarshalling body")
+		return "", errors.New("Error Unmarshalling body")
 	}
 
-	// Show off some stuff
-	fmt.Println(body)
-	fmt.Println(string(body))
-	fmt.Println(bodyData)
+	// Return the body's response value, as that's the membership ID
+	return bodyData["Response"].(string), nil
+}
 
-	return bodyData, nil
+// Display the account's character summary
+func characterSummary(destinyMembershipID string) {
+	url := ApiUrl + MembershipType + "/Account/" + destinyMembershipID + "/Summary/"
+
+	// Get and parse the response body
+	var body, bodyErr = getBody(url)
+	if bodyErr != nil {
+		log.Fatal("bodyErr: ", bodyErr)
+		return 
+	}
+
+	var dRes models.AccountSummaryResponse
+	jErr := json.Unmarshal(body, &dRes)
+	if jErr != nil {
+		log.Fatal("jErr: ", jErr)
+		return
+	}
+
+	// Display all Character IDs for now
+	fmt.Println("==========")
+	fmt.Println(dRes.Response.Data.MembershipID)
+	fmt.Println(dRes.Response.Data.MembershipType)
+	for i, e := range dRes.Response.Data.Characters {
+		fmt.Println(i, e.CharacterBase.CharacterID)
+	}
+	fmt.Println("==========")
+
 }

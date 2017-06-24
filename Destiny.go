@@ -6,25 +6,77 @@ import (
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
+	"errors"
+)
+
+const (
+	ApiUrl = "http://www.bungie.net/Platform/Destiny/"
+)
+
+var (
+	MembershipType = "1" // Xbox = 1, PSN = 2
+	DisplayName = "UserNameHere"
 )
 
 func main() {
-	destinyUrl := "http://www.bungie.net/Platform/Destiny/1/Stats/GetMembershipIdByDisplayName/UserNameHere/"
+	// Temporary
+	// Grab the display name from a local file, for now
+	readKey, readErr := ioutil.ReadFile("DestinyName.txt")
+	if readErr != nil {
+		log.Fatal("readErr: ", readErr)
+		return 
+	}
+	DisplayName = string(readKey)
 
 	// Build the request
-	req, reqErr := http.NewRequest("GET", destinyUrl, nil)
+	destinyUrl := ApiUrl + MembershipType + "/Stats/GetMembershipIdByDisplayName/" + DisplayName
+
+	// Convert the body into something usable
+	var bodyData, bodyErr = getBodyData(destinyUrl)
+	if bodyErr != nil {
+		log.Fatal("bodyErr: ", bodyErr)
+		return 
+	}
+
+	// Show off information
+	for index, element := range bodyData {
+		fmt.Printf("Type %T ", element)
+		fmt.Println(index, element)
+	}
+}
+
+// Grab an API key from a local file
+func getAPIKey() (string, error) {
+	readKey, readErr := ioutil.ReadFile("DestinyKey.txt")
+	if readErr != nil {
+		log.Fatal("readErr: ", readErr)
+		return "", errors.New("Error reading DestinyKey.txt")
+	}
+	return string(readKey), nil
+}
+
+// Make a GET request to the supplied url
+func getBodyData(url string) (map[string]interface{}, error) {
+	req, reqErr := http.NewRequest("GET", url, nil)
 	if reqErr != nil {
 		log.Fatal("reqErr: ", reqErr)
-		return
+		return nil, errors.New("Error building NewRequest")
 	}
-	req.Header.Add("X-API-Key", "apiKeyHere")
+
+	apiKey, apiErr := getAPIKey()
+	if apiErr != nil {
+		log.Fatal("apiErr: ", apiErr)
+		return nil, errors.New("Error getting API key")
+	}
+
+	req.Header.Add("X-API-Key", apiKey)
 
 	// Build the client and send the request
 	client := &http.Client{}
 	resp, respErr := client.Do(req)
 	if respErr != nil {
 		log.Fatal("respErr: ", respErr)
-		return
+		return nil, errors.New("Error making response")
 	}
 
 	// Close the body
@@ -34,7 +86,7 @@ func main() {
 	body, bodyErr := ioutil.ReadAll(resp.Body)
 	if bodyErr != nil {
 		log.Fatal("bodyErr: ", bodyErr)
-		return
+		return nil, errors.New("Error reading response body")
 	}
 
 	// Convert the body into something usable
@@ -42,14 +94,13 @@ func main() {
 	jsonErr := json.Unmarshal(body, &bodyData)
 	if jsonErr != nil {
 		log.Fatal("jsonErr: ", jsonErr)
-		return
+		return nil, errors.New("Error Unmarshalling body")
 	}
 
 	// Show off some stuff
 	fmt.Println(body)
 	fmt.Println(string(body))
-
 	fmt.Println(bodyData)
-	fmt.Println(bodyData["Response"])
-	fmt.Println(bodyData["Message"])
+
+	return bodyData, nil
 }

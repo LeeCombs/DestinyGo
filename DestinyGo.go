@@ -34,6 +34,7 @@ func main() {
     memID, _ := getMembershipIdByDisplayName(DisplayName)
     GetAccountSummary(MembershipType, memID, false)
     GetCharacterInventorySummary(MembershipType, memID, "2305843009333417637", false)
+    GetCharacterProgression(MembershipType, memID, "2305843009333417637", false)
 }
 
 // Grab an API key from a local file
@@ -170,4 +171,35 @@ func GetCharacterInventorySummary (membershipType int, destinyMembershipId strin
         fmt.Println("Cur", i, e.ItemHash, e.Value)
     }
     fmt.Println("================")
+}
+
+func GetCharacterProgression(membershipType int, destinyMembershipId string, characterId string, definitions bool) {
+        // Build the uri
+    uri := "/Destiny/" + strconv.Itoa(membershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
+    if definitions {
+        uri += "?definitions=true"
+    }
+
+    // Get and parse the response body
+    var body, bodyErr = getBody(uri)
+    if bodyErr != nil {
+        log.Fatal("bodyErr: ", bodyErr)
+        return 
+    }
+
+    var dRes models.CharacterProgression
+    jErr := json.Unmarshal(body, &dRes)
+    if jErr != nil {
+        log.Fatal("jErr: ", jErr)
+        return
+    }
+
+    // Show off some stuff
+    fmt.Println("===CharPro===")
+    fmt.Println("Char:", characterId)
+    fmt.Println("Index, Hash, Current")
+    for i, e := range dRes.Response.Data.Progressions {
+        fmt.Println(i, e.ProgressionHash, e.CurrentProgress)
+    }
+    fmt.Println("=============")
 }

@@ -33,6 +33,7 @@ func main() {
     // Get the membership ID and display the account's character summaries
     memID, _ := getMembershipIdByDisplayName(DisplayName)
     GetAccountSummary(MembershipType, memID, false)
+    GetCharacterInventorySummary(MembershipType, memID, "2305843009333417637", false)
 }
 
 // Grab an API key from a local file
@@ -110,7 +111,7 @@ func getMembershipIdByDisplayName(displayName string) (string, error) {
 func GetAccountSummary(membershipType int, destinyMembershipId string, definitions bool) {
     // Build the uri
     uri := "/Destiny/" + strconv.Itoa(membershipType) + "/Account/" + destinyMembershipId + "/Summary"
-    if definitions == true {
+    if definitions {
         uri += "?definitions=true"
     }
 
@@ -129,11 +130,44 @@ func GetAccountSummary(membershipType int, destinyMembershipId string, definitio
     }
 
     // Show off some stuff
-    fmt.Println("======")
+    fmt.Println("===AccSum===")
     fmt.Println(dRes.Response.Data.MembershipID)
     fmt.Println(dRes.Response.Data.MembershipType)
     for i, e := range dRes.Response.Data.Characters {
         fmt.Println(i, e.CharacterBase.CharacterID)
     }
-    fmt.Println("==========")
+    fmt.Println("============")
+}
+
+func GetCharacterInventorySummary (membershipType int, destinyMembershipId string, characterId string, definitions bool) {
+    // Build the uri
+    uri := "/Destiny/" + strconv.Itoa(membershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
+    if definitions {
+        uri += "?definitions=true"
+    }
+
+    // Get and parse the response body
+    var body, bodyErr = getBody(uri)
+    if bodyErr != nil {
+        log.Fatal("bodyErr: ", bodyErr)
+        return 
+    }
+
+    var dRes models.CharacterInventorySummary
+    jErr := json.Unmarshal(body, &dRes)
+    if jErr != nil {
+        log.Fatal("jErr: ", jErr)
+        return
+    }
+
+    // Show off some stuff
+    fmt.Println("===CharInvSum===")
+    fmt.Println("Char:", characterId)
+    for i, e := range dRes.Response.Data.Items {
+        fmt.Println("Item", i, e.ItemHash, e.ItemID)
+    }
+    for i, e := range dRes.Response.Data.Currencies {
+        fmt.Println("Cur", i, e.ItemHash, e.Value)
+    }
+    fmt.Println("================")
 }

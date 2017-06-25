@@ -8,14 +8,15 @@ import (
     "encoding/json"
     "errors"
     "./models"
+    "strconv"
 )
 
 const (
-    ApiUrl = "https://www.bungie.net/Platform/Destiny/"
+    ApiUrl = "https://www.bungie.net/Platform"
 )
 
 var (
-    MembershipType = "1" // Xbox = 1, PSN = 2
+    MembershipType = 1 // Xbox = 1, PSN = 2
     DisplayName = "UserNameHere"
 )
 
@@ -31,7 +32,7 @@ func main() {
 
     // Get the membership ID and display the account's character summaries
     memID, _ := getMembershipIdByDisplayName(DisplayName)
-    characterSummary(memID)
+    GetAccountSummary(MembershipType, memID, false)
 }
 
 // Grab an API key from a local file
@@ -44,9 +45,10 @@ func getAPIKey() (string, error) {
     return string(readKey), nil
 }
 
-// Make a GET request to the supplied url
-func getBody(url string) ([]byte, error) {
+// Make a GET request using the supplied uri
+func getBody(uri string) ([]byte, error) {
     // Build the request
+    url := ApiUrl + uri
     req, reqErr := http.NewRequest("GET", url, nil)
     if reqErr != nil {
         log.Fatal("reqErr: ", reqErr)
@@ -84,10 +86,11 @@ func getBody(url string) ([]byte, error) {
 
 // Retrieve the membership ID associated with the displayName
 func getMembershipIdByDisplayName(displayName string) (string, error) {
-    url := ApiUrl + MembershipType + "/Stats/GetMembershipIdByDisplayName/" + displayName
+    // Build the uri
+    uri := "/Destiny/" + strconv.Itoa(MembershipType) + "/Stats/GetMembershipIdByDisplayName/" + displayName
 
     // Get and parse the response body
-    var body, bodyErr = getBody(url)
+    var body, bodyErr = getBody(uri)
     if bodyErr != nil {
         log.Fatal("bodyErr: ", bodyErr)
         return "", errors.New("Error getting body")
@@ -104,12 +107,15 @@ func getMembershipIdByDisplayName(displayName string) (string, error) {
     return bodyData["Response"].(string), nil
 }
 
-// Display the account's character summary
-func characterSummary(destinyMembershipID string) {
-    url := ApiUrl + MembershipType + "/Account/" + destinyMembershipID + "/Summary/"
+func GetAccountSummary(membershipType int, destinyMembershipId string, definitions bool) {
+    // Build the uri
+    uri := "/Destiny/" + strconv.Itoa(membershipType) + "/Account/" + destinyMembershipId + "/Summary"
+    if definitions == true {
+        uri += "?definitions=true"
+    }
 
     // Get and parse the response body
-    var body, bodyErr = getBody(url)
+    var body, bodyErr = getBody(uri)
     if bodyErr != nil {
         log.Fatal("bodyErr: ", bodyErr)
         return 
@@ -122,13 +128,12 @@ func characterSummary(destinyMembershipID string) {
         return
     }
 
-    // Display all Character IDs for now
-    fmt.Println("==========")
+    // Show off some stuff
+    fmt.Println("======")
     fmt.Println(dRes.Response.Data.MembershipID)
     fmt.Println(dRes.Response.Data.MembershipType)
     for i, e := range dRes.Response.Data.Characters {
         fmt.Println(i, e.CharacterBase.CharacterID)
     }
     fmt.Println("==========")
-
 }

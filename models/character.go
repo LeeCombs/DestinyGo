@@ -19,51 +19,15 @@ type Character struct {
         CurrentActivityHash      int64 `json:"currentActivityHash"`
         LastCompletedStoryHash   int64 `json:"lastCompletedStoryHash"`
         Stats struct {
-            STATDEFENSE struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_DEFENSE"`
-            STATINTELLECT struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_INTELLECT"`
-            STATDISCIPLINE struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_DISCIPLINE"`
-            STATSTRENGTH struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_STRENGTH"`
-            STATLIGHT struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_LIGHT"`
-            STATARMOR struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_ARMOR"`
-            STATAGILITY struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_AGILITY"`
-            STATRECOVERY struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_RECOVERY"`
-            STATOPTICS struct {
-                StatHash     int64 `json:"statHash"`
-                Value        int `json:"value"`
-                MaximumValue int `json:"maximumValue"`
-            } `json:"STAT_OPTICS"`
+            STATDEFENSE    Stat `json:"STAT_DEFENSE"`
+            STATINTELLECT  Stat `json:"STAT_INTELLECT"`
+            STATDISCIPLINE Stat `json:"STAT_DISCIPLINE"`
+            STATSTRENGTH   Stat `json:"STAT_STRENGTH"`
+            STATLIGHT      Stat `json:"STAT_LIGHT"`
+            STATARMOR      Stat `json:"STAT_ARMOR"`
+            STATAGILITY    Stat `json:"STAT_AGILITY"`
+            STATRECOVERY   Stat `json:"STAT_RECOVERY"`
+            STATOPTICS     Stat `json:"STAT_OPTICS"`
         } `json:"stats"`
         Customization struct {
             Personality  int64 `json:"personality"`
@@ -81,25 +45,13 @@ type Character struct {
         } `json:"customization"`
         GrimoireScore int `json:"grimoireScore"`
         PeerView struct {
-            Equipment []struct {
-                ItemHash int64 `json:"itemHash"`
-                Dyes     []interface{} `json:"dyes"`
-            } `json:"equipment"`
+            Equipment []Equipment`json:"equipment"`
         } `json:"peerView"`
         GenderType         int `json:"genderType"`
         ClassType          int `json:"classType"`
         BuildStatGroupHash int64 `json:"buildStatGroupHash"`
     } `json:"characterBase"`
-    LevelProgression struct {
-        DailyProgress       int `json:"dailyProgress"`
-        WeeklyProgress      int `json:"weeklyProgress"`
-        CurrentProgress     int `json:"currentProgress"`
-        Level               int `json:"level"`
-        Step                int `json:"step"`
-        ProgressToNextLevel int `json:"progressToNextLevel"`
-        NextLevelAt         int `json:"nextLevelAt"`
-        ProgressionHash     int64 `json:"progressionHash"`
-    } `json:"levelProgression"`
+    LevelProgression   Progression `json:"levelProgression"`
     EmblemPath         string `json:"emblemPath"`
     BackgroundPath     string `json:"backgroundPath"`
     EmblemHash         int64 `json:"emblemHash"`

@@ -1,11 +1,11 @@
 package models
 
-type SearchDestinyPlayer struct {
-    Response []struct {
-        IconPath       string `json:"iconPath"`
-        MembershipType int `json:"membershipType"`
-        MembershipID   string `json:"membershipId"`
-        DisplayName    string `json:"displayName"`
+type AllItemsSummary struct {
+    Response struct {
+        Data struct {
+            Items      []Item `json:"items"`
+            Characters []Character `json:"characters"`
+        } `json:"data"`
     } `json:"Response"`
     ErrorCode       int `json:"ErrorCode"`
     ThrottleSeconds int `json:"ThrottleSeconds"`

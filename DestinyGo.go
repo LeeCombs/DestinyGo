@@ -32,13 +32,21 @@ func main() {
     GetAccountSummary(memID, false)
     GetCharacterSummary(memID, "2305843009333417637", false)
     GetCharacterProgression(memID, "2305843009333417637", false)
-    SearchDestinyPlayer(DisplayName)
+
+
+    dPlayers, searchErr :=  SearchDestinyPlayer(DisplayName)
+    if searchErr != nil {
+        log.Fatal("searchErr: ", searchErr)
+        return 
+    }
+    fmt.Println(dPlayers)
+
 }
 
 // Search for Destiner players by display name
 // PUBLIC Endpoint
-// TODO: Actually return the information?
-func SearchDestinyPlayer(displayName string) {
+// Returns a 2D array of [[IconPath, MembershipID]]
+func SearchDestinyPlayer(displayName string) ([][]string, error) {
     // Build the uri
     // SearchDestinyPlayer/{membershipType}/{displayName}/
     uri := "SearchDestinyPlayer/" + strconv.Itoa(MembershipType) + "/" + displayName
@@ -48,20 +56,20 @@ func SearchDestinyPlayer(displayName string) {
     dataErr := getData(uri, &dRes)
     if dataErr != nil {
         log.Fatal("dataErr: ", dataErr)
-        return
+        return nil, errors.New("Error retrieving dRes")
     }
 
-    // Show off some stuff
-    fmt.Println("===Search===")
-    for i, e := range dRes.Response {
-        fmt.Println(i, e.IconPath, e.MembershipType, e.MembershipID)
+    // Build the return (Icon Path, Member ID)
+    retVal := [][]string{};
+    for _, e := range dRes.Response {
+        retVal = append(retVal, []string{e.IconPath, e.MembershipID})
     }
-    fmt.Println("=============")
+    return retVal, nil
 }
 
 // Retrieve the membership ID associated with the displayName
 // PUBLIC Endpoint
-// TODO: Actually return the information?
+// Returns a string of the Membership ID
 func GetMembershipIdByDisplayName(displayName string, ignoreCase bool) (string, error) {
     // Build the uri
     // {membershipType}/Stats/GetMembershipIdByDisplayName/{displayName}
@@ -198,9 +206,11 @@ func GetCharacterProgression(destinyMembershipId string, characterId string, def
     fmt.Println("=============")
 }
 
+
 //////////////////////////////
 // Private helper functions //
 //////////////////////////////
+
 
 // Grab an API key from a local file
 func getAPIKey() (string, error) {
@@ -251,13 +261,16 @@ func getBody(uri string) ([]byte, error) {
     return body, nil
 }
 
+// Retrieve the stored data of a given uri, and populate the the supplied interface
 func getData(uri string, dRes interface{}) error {
+    // Get the body from the uri
     var body, bodyErr = getBody(uri)
     if bodyErr != nil {
         log.Fatal("bodyErr: ", bodyErr)
         return errors.New("Error retrieving body")
     }
 
+    // Populate the interface with the retrieved body data
     jErr := json.Unmarshal(body, &dRes)
     if jErr != nil {
         log.Fatal("jErr: ", jErr)

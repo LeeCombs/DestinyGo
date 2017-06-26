@@ -11,17 +11,13 @@ import (
     "strconv"
 )
 
-
 var (
-    ApiUrl = "https://www.bungie.net/Platform"
+    ApiUrl = "https://www.bungie.net/Platform/Destiny/"
     MembershipType = 1 // Xbox = 1, PSN = 2
     DisplayName = "UserNameHere"
 )
 
 func main() {
-    // TODO: Grab Membership Type from somewhere
-    ApiUrl += "/Destiny/" + strconv.Itoa(MembershipType)
-
     // Temporary
     // Grab the display name from a local file, for now
     readKey, readErr := ioutil.ReadFile("DestinyName.txt")
@@ -32,10 +28,11 @@ func main() {
     DisplayName = string(readKey)
 
     // Get the membership ID and display the account's character summaries
-    memID, _ := getMembershipIdByDisplayName(DisplayName)
+    memID, _ := GetMembershipIdByDisplayName(DisplayName, false)
     GetAccountSummary(memID, false)
     GetCharacterInventorySummary(memID, "2305843009333417637", false)
     GetCharacterProgression(memID, "2305843009333417637", false)
+    SearchDestinyPlayer(DisplayName)
 }
 
 // Grab an API key from a local file
@@ -103,32 +100,35 @@ func getData(uri string, dRes interface{}) error {
     return nil
 }
 
-// Retrieve the membership ID associated with the displayName
-func getMembershipIdByDisplayName(displayName string) (string, error) {
-    // Build the uri
-    uri := "/Stats/GetMembershipIdByDisplayName/" + displayName
 
-    // Get and parse the response body
-    var body, bodyErr = getBody(uri)
-    if bodyErr != nil {
-        log.Fatal("bodyErr: ", bodyErr)
-        return "", errors.New("Error getting body")
+// Retrieve the membership ID associated with the displayName
+// TODO: Actually return the information?
+func GetMembershipIdByDisplayName(displayName string, ignoreCase bool) (string, error) {
+    // Build the uri
+    // {membershipType}/Stats/GetMembershipIdByDisplayName/{displayName}
+    uri := strconv.Itoa(MembershipType) + "/Stats/GetMembershipIdByDisplayName/" + displayName
+    if ignoreCase {
+        uri += "?ignorecase=true"
     }
 
-    var bodyData map[string]interface{}
-    jsonErr := json.Unmarshal(body, &bodyData)
-    if jsonErr != nil {
-        log.Fatal("jsonErr: ", jsonErr)
-        return "", errors.New("Error Unmarshalling body")
+    // Get and parse the response
+    var dRes models.MembershipIdByDisplayName
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return "", errors.New("Error retrieving data")
     }
 
     // Return the body's response value, as that's the membership ID
-    return bodyData["Response"].(string), nil
+    return dRes.Response, nil
 }
 
+// Retrieve the summary information for a given membership id
+// TODO: Actually return the information?
 func GetAccountSummary(destinyMembershipId string, definitions bool) {
     // Build the uri
-    uri := "/Account/" + destinyMembershipId + "/Summary"
+    // {membershipType}/Account/{destinyMembershipId}/Summary
+    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Summary"
     if definitions {
         uri += "?definitions=true"
     }
@@ -151,9 +151,12 @@ func GetAccountSummary(destinyMembershipId string, definitions bool) {
     fmt.Println("============")
 }
 
+// Get a singular character inventory summary information
+// TODO: Actually return the information?
 func GetCharacterInventorySummary (destinyMembershipId string, characterId string, definitions bool) {
     // Build the uri
-    uri := "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
+    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/Summary
+    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
     if definitions {
         uri += "?definitions=true"
     }
@@ -178,9 +181,12 @@ func GetCharacterInventorySummary (destinyMembershipId string, characterId strin
     fmt.Println("================")
 }
 
+// Get a singular character progression information
+// TODO: Actually return the information?
 func GetCharacterProgression(destinyMembershipId string, characterId string, definitions bool) {
-        // Build the uri
-    uri := "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
+    // Build the uri
+    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Progression/
+    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
     if definitions {
         uri += "?definitions=true"
     }
@@ -199,6 +205,28 @@ func GetCharacterProgression(destinyMembershipId string, characterId string, def
     fmt.Println("Index, Hash, Current")
     for i, e := range dRes.Response.Data.Progressions {
         fmt.Println(i, e.ProgressionHash, e.CurrentProgress)
+    }
+    fmt.Println("=============")
+}
+
+// Search for Destiner players by display name
+func SearchDestinyPlayer(displayName string) {
+    // Build the uri
+    // SearchDestinyPlayer/{membershipType}/{displayName}/
+    uri := "SearchDestinyPlayer/" + strconv.Itoa(MembershipType) + "/" + displayName
+
+    // Get and parse the response body
+    var dRes models.SearchDestinyPlayer
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return
+    }
+
+    // Show off some stuff
+    fmt.Println("===Search===")
+    for i, e := range dRes.Response {
+        fmt.Println(i, e.IconPath, e.MembershipType, e.MembershipID)
     }
     fmt.Println("=============")
 }

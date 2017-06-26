@@ -73,8 +73,11 @@ func main() {
     */
 
     // GetCharacterProgression(memID, "2305843009333417637", false)
+    // GetCharacterInventorySummary(memID, "2305843009333417637", false)
+    // GetAllItemsSummary(memID, false)
 
-
+    GetDestinySingleDefinition("6", "2878029263", false)
+    fmt.Println(memID)
 }
 
 // Search for Destiner players by display name
@@ -237,6 +240,45 @@ func GetCharacterProgression(destinyMembershipId string, characterId string, def
     fmt.Println("=============")
 }
 
+// Returns all items for a given account
+func GetAllItemsSummary(destinyMembershipId string, definitions bool) {
+    // Build the uri
+    // {membershipType}/Account/{destinyMembershipId}/Items
+    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Items"
+    if definitions {
+        uri += "?definitions=true"
+    }
+
+    // Get and parse the response body
+    var dRes models.AllItemsSummary
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return
+    }
+
+    fmt.Println("===AllItemSum===")
+    for i, e := range dRes.Response.Data.Items {
+        fmt.Println(i, e.ItemHash)
+    }
+    fmt.Println("================")
+}
+
+// Returns the specific item from the current manifest a json object
+func GetDestinySingleDefinition(definitionType string, definitionID string, definitions bool) {
+    uri := "/Manifest/" + definitionType + "/" + definitionID
+    if definitions {
+        uri += "?definitions=true"
+    }
+
+    // Get and parse the response body
+    var dRes interface{}
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return
+    }
+}
 
 //////////////////////////////
 // Private helper functions //
@@ -288,6 +330,9 @@ func getBody(uri string) ([]byte, error) {
         log.Fatal("bodyErr: ", bodyErr)
         return nil, errors.New("Error reading response body")
     }
+
+    // TEMP
+    fmt.Println(string(body))
 
     return body, nil
 }

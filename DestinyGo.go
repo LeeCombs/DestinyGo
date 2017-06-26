@@ -11,16 +11,17 @@ import (
     "strconv"
 )
 
-const (
-    ApiUrl = "https://www.bungie.net/Platform"
-)
 
 var (
+    ApiUrl = "https://www.bungie.net/Platform"
     MembershipType = 1 // Xbox = 1, PSN = 2
     DisplayName = "UserNameHere"
 )
 
 func main() {
+    // TODO: Grab Membership Type from somewhere
+    ApiUrl += "/Destiny/" + strconv.Itoa(MembershipType)
+
     // Temporary
     // Grab the display name from a local file, for now
     readKey, readErr := ioutil.ReadFile("DestinyName.txt")
@@ -32,9 +33,9 @@ func main() {
 
     // Get the membership ID and display the account's character summaries
     memID, _ := getMembershipIdByDisplayName(DisplayName)
-    GetAccountSummary(MembershipType, memID, false)
-    GetCharacterInventorySummary(MembershipType, memID, "2305843009333417637", false)
-    GetCharacterProgression(MembershipType, memID, "2305843009333417637", false)
+    GetAccountSummary(memID, false)
+    GetCharacterInventorySummary(memID, "2305843009333417637", false)
+    GetCharacterProgression(memID, "2305843009333417637", false)
 }
 
 // Grab an API key from a local file
@@ -86,10 +87,26 @@ func getBody(uri string) ([]byte, error) {
     return body, nil
 }
 
+func getData(uri string, dRes interface{}) error {
+    var body, bodyErr = getBody(uri)
+    if bodyErr != nil {
+        log.Fatal("bodyErr: ", bodyErr)
+        return errors.New("Error retrieving body")
+    }
+
+    jErr := json.Unmarshal(body, &dRes)
+    if jErr != nil {
+        log.Fatal("jErr: ", jErr)
+        return errors.New("Error unmarshalling body")
+    }
+
+    return nil
+}
+
 // Retrieve the membership ID associated with the displayName
 func getMembershipIdByDisplayName(displayName string) (string, error) {
     // Build the uri
-    uri := "/Destiny/" + strconv.Itoa(MembershipType) + "/Stats/GetMembershipIdByDisplayName/" + displayName
+    uri := "/Stats/GetMembershipIdByDisplayName/" + displayName
 
     // Get and parse the response body
     var body, bodyErr = getBody(uri)
@@ -109,24 +126,18 @@ func getMembershipIdByDisplayName(displayName string) (string, error) {
     return bodyData["Response"].(string), nil
 }
 
-func GetAccountSummary(membershipType int, destinyMembershipId string, definitions bool) {
+func GetAccountSummary(destinyMembershipId string, definitions bool) {
     // Build the uri
-    uri := "/Destiny/" + strconv.Itoa(membershipType) + "/Account/" + destinyMembershipId + "/Summary"
+    uri := "/Account/" + destinyMembershipId + "/Summary"
     if definitions {
         uri += "?definitions=true"
     }
 
-    // Get and parse the response body
-    var body, bodyErr = getBody(uri)
-    if bodyErr != nil {
-        log.Fatal("bodyErr: ", bodyErr)
-        return 
-    }
-
+    // Get and parse the response
     var dRes models.AccountSummaryResponse
-    jErr := json.Unmarshal(body, &dRes)
-    if jErr != nil {
-        log.Fatal("jErr: ", jErr)
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
         return
     }
 
@@ -140,24 +151,18 @@ func GetAccountSummary(membershipType int, destinyMembershipId string, definitio
     fmt.Println("============")
 }
 
-func GetCharacterInventorySummary (membershipType int, destinyMembershipId string, characterId string, definitions bool) {
+func GetCharacterInventorySummary (destinyMembershipId string, characterId string, definitions bool) {
     // Build the uri
-    uri := "/Destiny/" + strconv.Itoa(membershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
+    uri := "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
     if definitions {
         uri += "?definitions=true"
     }
 
-    // Get and parse the response body
-    var body, bodyErr = getBody(uri)
-    if bodyErr != nil {
-        log.Fatal("bodyErr: ", bodyErr)
-        return 
-    }
-
+    // Get and parse the response
     var dRes models.CharacterInventorySummary
-    jErr := json.Unmarshal(body, &dRes)
-    if jErr != nil {
-        log.Fatal("jErr: ", jErr)
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
         return
     }
 
@@ -173,24 +178,18 @@ func GetCharacterInventorySummary (membershipType int, destinyMembershipId strin
     fmt.Println("================")
 }
 
-func GetCharacterProgression(membershipType int, destinyMembershipId string, characterId string, definitions bool) {
+func GetCharacterProgression(destinyMembershipId string, characterId string, definitions bool) {
         // Build the uri
-    uri := "/Destiny/" + strconv.Itoa(membershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
+    uri := "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
     if definitions {
         uri += "?definitions=true"
     }
 
     // Get and parse the response body
-    var body, bodyErr = getBody(uri)
-    if bodyErr != nil {
-        log.Fatal("bodyErr: ", bodyErr)
-        return 
-    }
-
     var dRes models.CharacterProgression
-    jErr := json.Unmarshal(body, &dRes)
-    if jErr != nil {
-        log.Fatal("jErr: ", jErr)
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
         return
     }
 

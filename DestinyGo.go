@@ -29,17 +29,51 @@ func main() {
 
     // Get the membership ID and display the account's character summaries
     memID, _ := GetMembershipIdByDisplayName(DisplayName, false)
-    GetAccountSummary(memID, false)
-    GetCharacterSummary(memID, "2305843009333417637", false)
-    GetCharacterProgression(memID, "2305843009333417637", false)
 
+    // Getting an Account Summary
+    /*
+    grimScore, characters, accSumErr := GetAccountSummary(memID, false)
+    if accSumErr != nil {
+        log.Fatal("accSumErr", accSumErr)
+        return
+    }
+    fmt.Println("Grimoire Score", grimScore)
+    for _, char := range characters {
+        fmt.Println()
+        fmt.Println("Character:", char.CharacterBase.CharacterID)
+        fmt.Println("Level:", char.CharacterLevel)
+        fmt.Println("Light:", char.CharacterBase.PowerLevel)
+        fmt.Println("EmblemPath:", char.EmblemPath)
+        fmt.Println("BackgroundPath:", char.BackgroundPath)
+    }
+    */
 
+    // Getting a Character Summary
+    /*
+    char, charErr := GetCharacterSummary(memID, "2305843009333417637", false)
+    if charErr != nil {
+        log.Fatal("charErr", charErr)
+        return
+    }
+    fmt.Println("Character:", char.CharacterBase.CharacterID)
+    fmt.Println("Level:", char.CharacterLevel)
+    fmt.Println("Light:", char.CharacterBase.PowerLevel)
+    fmt.Println("EmblemPath:", char.EmblemPath)
+    fmt.Println("BackgroundPath:", char.BackgroundPath)
+    */
+
+    // Searching for a player
+    /*
     dPlayers, searchErr :=  SearchDestinyPlayer(DisplayName)
     if searchErr != nil {
         log.Fatal("searchErr: ", searchErr)
         return 
     }
     fmt.Println(dPlayers)
+    */
+
+    // GetCharacterProgression(memID, "2305843009333417637", false)
+
 
 }
 
@@ -92,8 +126,8 @@ func GetMembershipIdByDisplayName(displayName string, ignoreCase bool) (string, 
 
 // Retrieve the summary information for a given membership id
 // PUBLIC Endpoint
-// TODO: Actually return the information?
-func GetAccountSummary(destinyMembershipId string, definitions bool) {
+// Returns Account's Grimoire Score and all Characters
+func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []models.Character, error) {
     // Build the uri
     // {membershipType}/Account/{destinyMembershipId}/Summary
     uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Summary"
@@ -106,23 +140,22 @@ func GetAccountSummary(destinyMembershipId string, definitions bool) {
     dataErr := getData(uri, &dRes)
     if dataErr != nil {
         log.Fatal("dataErr: ", dataErr)
-        return
+        return -1, nil, errors.New("Error retrieving data")
     }
 
-    // Show off some stuff
-    fmt.Println("===AccSum===")
-    fmt.Println(dRes.Response.Data.MembershipID)
-    fmt.Println(dRes.Response.Data.MembershipType)
-    for i, e := range dRes.Response.Data.Characters {
-        fmt.Println(i, e.CharacterBase.CharacterID)
-    }
-    fmt.Println("============")
+    // Build the return
+    // TODO: Only interested in the following; think about only returning these instead of entire characters
+    // Account Grimoire Score
+    // Character's CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
+    grimoireScore := dRes.Response.Data.GrimoireScore
+    characters := dRes.Response.Data.Characters
+    return grimoireScore, characters, nil
 }
 
 // Get a singular character inventory summary information
 // PUBLIC Endpoint -- Note: To get a more detailed overview, use GetDestinyAccountCharacterComplete
-// TODO: Actually return the information?
-func GetCharacterSummary(destinyMembershipId string, characterId string, definitions bool) {
+// Returns a Character
+func GetCharacterSummary(destinyMembershipId string, characterId string, definitions bool) (models.Character, error) {
     // Build the uri
     // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/
     uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId
@@ -135,15 +168,13 @@ func GetCharacterSummary(destinyMembershipId string, characterId string, definit
     dataErr := getData(uri, &dRes)
     if dataErr != nil {
         log.Fatal("dataErr: ", dataErr)
-        return
+        return models.Character{}, errors.New("Error retrieving data")
     }
 
-    // Show off some stuff
-    fmt.Println("===CharSum===")
-    fmt.Println("ID", dRes.Response.Data.CharacterBase.CharacterID)
-    fmt.Println("Level",dRes.Response.Data.CharacterBase.PowerLevel)
-    fmt.Println("Grim", dRes.Response.Data.CharacterBase.GrimoireScore)
-    fmt.Println("================")
+    // Return the Character
+    // TODO: Only interested in the following; think about only returning these instead an entire character
+    // CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
+    return dRes.Response.Data, nil
 }
 
 // Get a singular character inventory summary information

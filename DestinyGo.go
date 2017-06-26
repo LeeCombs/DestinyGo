@@ -30,10 +30,177 @@ func main() {
     // Get the membership ID and display the account's character summaries
     memID, _ := GetMembershipIdByDisplayName(DisplayName, false)
     GetAccountSummary(memID, false)
-    GetCharacterInventorySummary(memID, "2305843009333417637", false)
+    GetCharacterSummary(memID, "2305843009333417637", false)
     GetCharacterProgression(memID, "2305843009333417637", false)
     SearchDestinyPlayer(DisplayName)
 }
+
+// Search for Destiner players by display name
+// PUBLIC Endpoint
+// TODO: Actually return the information?
+func SearchDestinyPlayer(displayName string) {
+    // Build the uri
+    // SearchDestinyPlayer/{membershipType}/{displayName}/
+    uri := "SearchDestinyPlayer/" + strconv.Itoa(MembershipType) + "/" + displayName
+
+    // Get and parse the response body
+    var dRes models.SearchDestinyPlayer
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return
+    }
+
+    // Show off some stuff
+    fmt.Println("===Search===")
+    for i, e := range dRes.Response {
+        fmt.Println(i, e.IconPath, e.MembershipType, e.MembershipID)
+    }
+    fmt.Println("=============")
+}
+
+// Retrieve the membership ID associated with the displayName
+// PUBLIC Endpoint
+// TODO: Actually return the information?
+func GetMembershipIdByDisplayName(displayName string, ignoreCase bool) (string, error) {
+    // Build the uri
+    // {membershipType}/Stats/GetMembershipIdByDisplayName/{displayName}
+    uri := strconv.Itoa(MembershipType) + "/Stats/GetMembershipIdByDisplayName/" + displayName
+    if ignoreCase {
+        uri += "?ignorecase=true"
+    }
+
+    // Get and parse the response
+    var dRes models.MembershipIdByDisplayName
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return "", errors.New("Error retrieving data")
+    }
+
+    // Return the body's response value, as that's the membership ID
+    return dRes.Response, nil
+}
+
+// Retrieve the summary information for a given membership id
+// PUBLIC Endpoint
+// TODO: Actually return the information?
+func GetAccountSummary(destinyMembershipId string, definitions bool) {
+    // Build the uri
+    // {membershipType}/Account/{destinyMembershipId}/Summary
+    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Summary"
+    if definitions {
+        uri += "?definitions=true"
+    }
+
+    // Get and parse the response
+    var dRes models.AccountSummaryResponse
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return
+    }
+
+    // Show off some stuff
+    fmt.Println("===AccSum===")
+    fmt.Println(dRes.Response.Data.MembershipID)
+    fmt.Println(dRes.Response.Data.MembershipType)
+    for i, e := range dRes.Response.Data.Characters {
+        fmt.Println(i, e.CharacterBase.CharacterID)
+    }
+    fmt.Println("============")
+}
+
+// Get a singular character inventory summary information
+// PUBLIC Endpoint -- Note: To get a more detailed overview, use GetDestinyAccountCharacterComplete
+// TODO: Actually return the information?
+func GetCharacterSummary(destinyMembershipId string, characterId string, definitions bool) {
+    // Build the uri
+    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/
+    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId
+    if definitions {
+        uri += "?definitions=true"
+    }
+
+    // Get and parse the response
+    var dRes models.CharacterSummary
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return
+    }
+
+    // Show off some stuff
+    fmt.Println("===CharSum===")
+    fmt.Println("ID", dRes.Response.Data.CharacterBase.CharacterID)
+    fmt.Println("Level",dRes.Response.Data.CharacterBase.PowerLevel)
+    fmt.Println("Grim", dRes.Response.Data.CharacterBase.GrimoireScore)
+    fmt.Println("================")
+}
+
+// Get a singular character inventory summary information
+// PUBLIC Endpoint
+// TODO: Actually return the information?
+func GetCharacterInventorySummary (destinyMembershipId string, characterId string, definitions bool) {
+    // Build the uri
+    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/Summary
+    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
+    if definitions {
+        uri += "?definitions=true"
+    }
+
+    // Get and parse the response
+    var dRes models.CharacterInventorySummary
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return
+    }
+
+    // Show off some stuff
+    fmt.Println("===CharInvSum===")
+    fmt.Println("Char:", characterId)
+    for i, e := range dRes.Response.Data.Items {
+        fmt.Println("Item", i, e.ItemHash, e.ItemID)
+    }
+    for i, e := range dRes.Response.Data.Currencies {
+        fmt.Println("Cur", i, e.ItemHash, e.Value)
+    }
+    fmt.Println("================")
+}
+
+// Get a singular character progression information
+// PUBLIC Endpoint
+// TODO: Actually return the information?
+func GetCharacterProgression(destinyMembershipId string, characterId string, definitions bool) {
+    // Build the uri
+    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Progression/
+    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
+    if definitions {
+        uri += "?definitions=true"
+    }
+
+    // Get and parse the response body
+    var dRes models.CharacterProgression
+    dataErr := getData(uri, &dRes)
+    if dataErr != nil {
+        log.Fatal("dataErr: ", dataErr)
+        return
+    }
+
+    // Show off some stuff
+    fmt.Println("===CharPro===")
+    fmt.Println("Char:", characterId)
+    fmt.Println("Index, Hash, Current")
+    for i, e := range dRes.Response.Data.Progressions {
+        fmt.Println(i, e.ProgressionHash, e.CurrentProgress)
+    }
+    fmt.Println("=============")
+}
+
+//////////////////////////////
+// Private helper functions //
+//////////////////////////////
 
 // Grab an API key from a local file
 func getAPIKey() (string, error) {
@@ -98,135 +265,4 @@ func getData(uri string, dRes interface{}) error {
     }
 
     return nil
-}
-
-
-// Retrieve the membership ID associated with the displayName
-// TODO: Actually return the information?
-func GetMembershipIdByDisplayName(displayName string, ignoreCase bool) (string, error) {
-    // Build the uri
-    // {membershipType}/Stats/GetMembershipIdByDisplayName/{displayName}
-    uri := strconv.Itoa(MembershipType) + "/Stats/GetMembershipIdByDisplayName/" + displayName
-    if ignoreCase {
-        uri += "?ignorecase=true"
-    }
-
-    // Get and parse the response
-    var dRes models.MembershipIdByDisplayName
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return "", errors.New("Error retrieving data")
-    }
-
-    // Return the body's response value, as that's the membership ID
-    return dRes.Response, nil
-}
-
-// Retrieve the summary information for a given membership id
-// TODO: Actually return the information?
-func GetAccountSummary(destinyMembershipId string, definitions bool) {
-    // Build the uri
-    // {membershipType}/Account/{destinyMembershipId}/Summary
-    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Summary"
-    if definitions {
-        uri += "?definitions=true"
-    }
-
-    // Get and parse the response
-    var dRes models.AccountSummaryResponse
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return
-    }
-
-    // Show off some stuff
-    fmt.Println("===AccSum===")
-    fmt.Println(dRes.Response.Data.MembershipID)
-    fmt.Println(dRes.Response.Data.MembershipType)
-    for i, e := range dRes.Response.Data.Characters {
-        fmt.Println(i, e.CharacterBase.CharacterID)
-    }
-    fmt.Println("============")
-}
-
-// Get a singular character inventory summary information
-// TODO: Actually return the information?
-func GetCharacterInventorySummary (destinyMembershipId string, characterId string, definitions bool) {
-    // Build the uri
-    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/Summary
-    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
-    if definitions {
-        uri += "?definitions=true"
-    }
-
-    // Get and parse the response
-    var dRes models.CharacterInventorySummary
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return
-    }
-
-    // Show off some stuff
-    fmt.Println("===CharInvSum===")
-    fmt.Println("Char:", characterId)
-    for i, e := range dRes.Response.Data.Items {
-        fmt.Println("Item", i, e.ItemHash, e.ItemID)
-    }
-    for i, e := range dRes.Response.Data.Currencies {
-        fmt.Println("Cur", i, e.ItemHash, e.Value)
-    }
-    fmt.Println("================")
-}
-
-// Get a singular character progression information
-// TODO: Actually return the information?
-func GetCharacterProgression(destinyMembershipId string, characterId string, definitions bool) {
-    // Build the uri
-    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Progression/
-    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
-    if definitions {
-        uri += "?definitions=true"
-    }
-
-    // Get and parse the response body
-    var dRes models.CharacterProgression
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return
-    }
-
-    // Show off some stuff
-    fmt.Println("===CharPro===")
-    fmt.Println("Char:", characterId)
-    fmt.Println("Index, Hash, Current")
-    for i, e := range dRes.Response.Data.Progressions {
-        fmt.Println(i, e.ProgressionHash, e.CurrentProgress)
-    }
-    fmt.Println("=============")
-}
-
-// Search for Destiner players by display name
-func SearchDestinyPlayer(displayName string) {
-    // Build the uri
-    // SearchDestinyPlayer/{membershipType}/{displayName}/
-    uri := "SearchDestinyPlayer/" + strconv.Itoa(MembershipType) + "/" + displayName
-
-    // Get and parse the response body
-    var dRes models.SearchDestinyPlayer
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return
-    }
-
-    // Show off some stuff
-    fmt.Println("===Search===")
-    for i, e := range dRes.Response {
-        fmt.Println(i, e.IconPath, e.MembershipType, e.MembershipID)
-    }
-    fmt.Println("=============")
 }

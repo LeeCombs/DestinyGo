@@ -6,18 +6,18 @@ import (
 
 type Character struct {
     CharacterBase struct {
-        MembershipID   string `json:"membershipId"`
-        MembershipType int `json:"membershipType"`
-        CharacterID    string `json:"characterId"`
+        MembershipID             string `json:"membershipId"`
+        MembershipType           int `json:"membershipType"`
+        CharacterID              string `json:"characterId"`
         DateLastPlayed           time.Time `json:"dateLastPlayed"`
         MinutesPlayedThisSession string `json:"minutesPlayedThisSession"`
         MinutesPlayedTotal       string `json:"minutesPlayedTotal"`
-        PowerLevel int `json:"powerLevel"`
-        RaceHash   int64 `json:"raceHash"`
-        GenderHash int64 `json:"genderHash"`
-        ClassHash  int64 `json:"classHash"`
-        CurrentActivityHash    int64 `json:"currentActivityHash"`
-        LastCompletedStoryHash int64 `json:"lastCompletedStoryHash"`
+        PowerLevel               int `json:"powerLevel"`
+        RaceHash                 int64 `json:"raceHash"`
+        GenderHash               int64 `json:"genderHash"`
+        ClassHash                int64 `json:"classHash"`
+        CurrentActivityHash      int64 `json:"currentActivityHash"`
+        LastCompletedStoryHash   int64 `json:"lastCompletedStoryHash"`
         Stats struct {
             STATDEFENSE struct {
                 StatHash     int64 `json:"statHash"`
@@ -83,7 +83,7 @@ type Character struct {
         PeerView struct {
             Equipment []struct {
                 ItemHash int64 `json:"itemHash"`
-            Dyes []interface{} `json:"dyes"`
+                Dyes     []interface{} `json:"dyes"`
             } `json:"equipment"`
         } `json:"peerView"`
         GenderType         int `json:"genderType"`

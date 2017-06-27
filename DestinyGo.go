@@ -77,7 +77,7 @@ func main() {
     // GetCharacterInventorySummary(memID, "2305843009333417637", false)
     // GetAllItemsSummary(memID, false)
 
-    GetDestinySingleDefinition(int(constants.DefTypeInventoryItem), "2878029263", false)
+    GetDestinySingleDefinition(int(constants.DefinitionTypeInventoryItem), "2878029263", false)
     fmt.Println(memID)
 
 }

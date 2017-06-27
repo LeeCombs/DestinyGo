@@ -9,6 +9,7 @@ import (
     "errors"
     "./models"
     "strconv"
+    "./constants"
 )
 
 var (
@@ -76,8 +77,9 @@ func main() {
     // GetCharacterInventorySummary(memID, "2305843009333417637", false)
     // GetAllItemsSummary(memID, false)
 
-    GetDestinySingleDefinition("6", "2878029263", false)
+    GetDestinySingleDefinition(int(constants.DefTypeInventoryItem), "2878029263", false)
     fmt.Println(memID)
+
 }
 
 // Search for Destiner players by display name
@@ -265,8 +267,10 @@ func GetAllItemsSummary(destinyMembershipId string, definitions bool) {
 }
 
 // Returns the specific item from the current manifest a json object
-func GetDestinySingleDefinition(definitionType string, definitionID string, definitions bool) {
-    uri := "/Manifest/" + definitionType + "/" + definitionID
+func GetDestinySingleDefinition(definitionType int, definitionID string, definitions bool) {
+    // Build the uri
+    // Manifest/{definitionType}/{definitionId}/
+    uri := "/Manifest/" + strconv.Itoa(definitionType) + "/" + definitionID
     if definitions {
         uri += "?definitions=true"
     }

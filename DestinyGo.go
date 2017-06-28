@@ -21,6 +21,7 @@ var (
 
 func main() {
     fmt.Println("Runnin' the program")
+    
     // Temporary
     // Grab the display name from a local file, for now
     DisplayName, _ = getDName()

@@ -22,8 +22,8 @@ var (
 func main() {
     // Temporary
     // Grab the display name from a local file, for now
-    fmt.Println("LOCAL TEST")
-    DisplayName = os.Getenv("DISPLAYNAME")
+    DisplayName, _ = getDName()
+
 
     // Get the membership ID and display the account's character summaries
     memID, _ := GetMembershipIdByDisplayName(DisplayName, false)
@@ -76,7 +76,6 @@ func main() {
 
     GetDestinySingleDefinition(int(constants.DefinitionTypeInventoryItem), "2878029263", false)
     fmt.Println(memID)
-
 }
 
 // Search for Destiner players by display name
@@ -293,9 +292,39 @@ func GetDestinySingleDefinition(definitionType int, definitionID string, definit
 //////////////////////////////
 
 
+
+// TEMP - Grab a display name from a local file
+func getDName() (string, error) {
+    dName := os.Getenv("DISPLAYNAME")
+
+    // Temp - If unable to get OS env, just read from local text
+    if dName == "" {
+        readKey, readErr := ioutil.ReadFile("DestinyName.txt")
+        if readErr != nil {
+            log.Fatal("readErr: ", readErr)
+            return "", errors.New("Error reading DestinyName.txt")
+        }
+        return string(readKey), nil
+    }
+
+    return dName, nil
+}
+
 // Grab an API key from a local file
 func getAPIKey() (string, error) {
-    return string(os.Getenv("APIKEY")), nil
+    aKey := os.Getenv("APIKEY")
+
+    // Temp - If unable to get OS env, just read from local text
+    if aKey == "" {
+        readKey, readErr := ioutil.ReadFile("DestinyKey.txt")
+        if readErr != nil {
+            log.Fatal("readErr: ", readErr)
+            return "", errors.New("Error reading DestinyKey.txt")
+        }
+        return string(readKey), nil
+    }
+
+    return aKey, nil
 }
 
 // Make a GET request using the supplied uri

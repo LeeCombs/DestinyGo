@@ -22,11 +22,8 @@ var (
 func main() {
     // Temporary
     // Grab the display name from a local file, for now
+    fmt.Println("LOCAL TEST")
     DisplayName = os.Getenv("DISPLAYNAME")
-    fmt.Println("dName: " + DisplayName)
-
-    akey := os.Getenv("APIKEI")
-    fmt.Println("akey: " + akey)
 
     // Get the membership ID and display the account's character summaries
     memID, _ := GetMembershipIdByDisplayName(DisplayName, false)

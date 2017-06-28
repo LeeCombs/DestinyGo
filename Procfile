@@ -1,1 +1,0 @@
-web: DestinyGo.exe

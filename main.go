@@ -282,6 +282,13 @@ func GetDestinySingleDefinition(definitionType int, definitionID string, definit
         log.Fatal("dataErr: ", dataErr)
         return
     }
+
+    fmt.Println(dRes)
+
+    // Note: dRes's data changes based on definitionType
+
+    // For Inventory Items, we're iterested in:
+    // ItemName, ItemDescription, Icon, HasIcon, SecondaryIcon
 }
 
 //////////////////////////////
@@ -334,9 +341,6 @@ func getBody(uri string) ([]byte, error) {
         log.Fatal("bodyErr: ", bodyErr)
         return nil, errors.New("Error reading response body")
     }
-
-    // TEMP
-    fmt.Println(string(body))
 
     return body, nil
 }

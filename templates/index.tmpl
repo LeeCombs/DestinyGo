@@ -1,0 +1,18 @@
+<html>
+    <h1>
+        {{.title}}
+    </h1>
+    <h2>
+        {{.displayName}}
+    </h2>
+    <h3>
+        {{ range .a }}
+        <p>{{ . }}</p>
+        {{ end }}
+    </h3>
+    <h3>
+        {{ range $k, $v := .chars }}
+        <p><strong>{{ $k }}</strong>:{{ $v }}</p>
+        {{ end }}
+    </h3>
+</html>

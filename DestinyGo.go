@@ -1,388 +1,425 @@
 package main
 
 import (
-    "fmt"
-    "log"
-    "os"
-    "errors"
-    "strconv"
-    "net/http"
-    "io/ioutil"
-    "encoding/json"
-    "DestinyGo/models"
-    "DestinyGo/constants"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+
+	_ "DestinyGo/constants"
+	"DestinyGo/models"
+
+	"gopkg.in/gin-gonic/gin.v1"
 )
 
 var (
-    ApiUrl = "https://www.bungie.net/Platform/Destiny/"
-    MembershipType = 1 // Xbox = 1, PSN = 2
-    DisplayName = "UserNameHere"
+	ApiUrl         = "https://www.bungie.net/Platform/Destiny/"
+	MembershipType = 1 // Xbox = 1, PSN = 2
+	DisplayName    = "UserNameHere"
 )
 
 func main() {
-    fmt.Println("Runnin' the program")
-    
-    // Temporary
-    // Grab the display name from a local file, for now
-    DisplayName, _ = getDName()
+	fmt.Println("Runnin' the program")
 
+	// Temporary
+	// Grab the display name from a local file, for now
+	DisplayName, _ = getDName()
+	searchChars, _ := SearchDestinyPlayer(DisplayName)
 
-    // Get the membership ID and display the account's character summaries
-    memID, _ := GetMembershipIdByDisplayName(DisplayName, false)
+	// Setup the router
+	router := gin.Default()
+	router.LoadHTMLGlob("templates/*")
 
-    // Getting an Account Summary
-    /*
-    grimScore, characters, accSumErr := GetAccountSummary(memID, false)
-    if accSumErr != nil {
-        log.Fatal("accSumErr", accSumErr)
-        return
-    }
-    fmt.Println("Grimoire Score", grimScore)
-    for _, char := range characters {
-        fmt.Println()
-        fmt.Println("Character:", char.CharacterBase.CharacterID)
-        fmt.Println("Level:", char.CharacterLevel)
-        fmt.Println("Light:", char.CharacterBase.PowerLevel)
-        fmt.Println("EmblemPath:", char.EmblemPath)
-        fmt.Println("BackgroundPath:", char.BackgroundPath)
-    }
-    */
+	// Set up routes
+	router.GET("/index", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"title":       "DestinyGo",
+			"displayName": DisplayName,
+			"chars":       searchChars,
+		})
+	})
 
-    // Getting a Character Summary
-    /*
-    char, charErr := GetCharacterSummary(memID, "2305843009333417637", false)
-    if charErr != nil {
-        log.Fatal("charErr", charErr)
-        return
-    }
-    fmt.Println("Character:", char.CharacterBase.CharacterID)
-    fmt.Println("Level:", char.CharacterLevel)
-    fmt.Println("Light:", char.CharacterBase.PowerLevel)
-    fmt.Println("EmblemPath:", char.EmblemPath)
-    fmt.Println("BackgroundPath:", char.BackgroundPath)
-    */
+	router.GET("/searchUser", handleSearch())
 
-    // Searching for a player
-    /*
-    dPlayers, searchErr :=  SearchDestinyPlayer(DisplayName)
-    if searchErr != nil {
-        log.Fatal("searchErr: ", searchErr)
-        return 
-    }
-    fmt.Println(dPlayers)
-    */
+	// Get the membership ID and display the account's character summaries
+	// memID, _ := GetMembershipIdByDisplayName(DisplayName, false)
 
-    // GetCharacterProgression(memID, "2305843009333417637", false)
-    // GetCharacterInventorySummary(memID, "2305843009333417637", false)
-    // GetAllItemsSummary(memID, false)
+	// Getting an Account Summary
+	/*
+	   grimScore, characters, accSumErr := GetAccountSummary(memID, false)
+	   if accSumErr != nil {
+	      log.Fatal("accSumErr", accSumErr)
+	      return
+	   }
+	   fmt.Println("Grimoire Score", grimScore)
+	   for _, char := range characters {
+	      fmt.Println()
+	      fmt.Println("Character:", char.CharacterBase.CharacterID)
+	      fmt.Println("Level:", char.CharacterLevel)
+	      fmt.Println("Light:", char.CharacterBase.PowerLevel)
+	      fmt.Println("EmblemPath:", char.EmblemPath)
+	      fmt.Println("BackgroundPath:", char.BackgroundPath)
+	   }
+	*/
 
-    GetDestinySingleDefinition(int(constants.DefinitionTypeInventoryItem), "2878029263", false)
-    fmt.Println(memID)
+	// Getting a Character Summary
+	/*
+	   char, charErr := GetCharacterSummary(memID, "2305843009333417637", false)
+	   if charErr != nil {
+	       log.Fatal("charErr", charErr)
+	       return
+	   }
+	   fmt.Println("Character:", char.CharacterBase.CharacterID)
+	   fmt.Println("Level:", char.CharacterLevel)
+	   fmt.Println("Light:", char.CharacterBase.PowerLevel)
+	   fmt.Println("EmblemPath:", char.EmblemPath)
+	   fmt.Println("BackgroundPath:", char.BackgroundPath)
+	*/
+
+	// Searching for a player
+	/*
+	   dPlayers, searchErr :=  SearchDestinyPlayer(DisplayName)
+	   if searchErr != nil {
+	       log.Fatal("searchErr: ", searchErr)
+	       return
+	   }
+	   fmt.Println(dPlayers)
+	*/
+
+	// GetCharacterProgression(memID, "2305843009333417637", false)
+	// GetCharacterInventorySummary(memID, "2305843009333417637", false)
+	// GetAllItemsSummary(memID, false)
+
+	// GetDestinySingleDefinition(int(constants.DefinitionTypeInventoryItem), "2878029263", false)
+	// fmt.Println(memID)
+
+	// Serve
+	router.Run(":8787")
 }
+
+//////////////
+// Handlers //
+//////////////
+
+func handleSearch() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		displayName := c.Query("displayName")
+
+		c.String(http.StatusOK, "Searching for: %s", displayName)
+	}
+
+	return gin.HandlerFunc(fn)
+}
+
+/////////////////
+// Destiny API //
+/////////////////
 
 // Search for Destiner players by display name
 // PUBLIC Endpoint
 // Returns a 2D array of [[IconPath, MembershipID]]
 func SearchDestinyPlayer(displayName string) ([][]string, error) {
-    // Build the uri
-    // SearchDestinyPlayer/{membershipType}/{displayName}/
-    uri := "SearchDestinyPlayer/" + strconv.Itoa(MembershipType) + "/" + displayName
+	// Build the uri
+	// SearchDestinyPlayer/{membershipType}/{displayName}/
+	uri := "SearchDestinyPlayer/" + strconv.Itoa(MembershipType) + "/" + displayName
 
-    // Get and parse the response body
-    var dRes models.SearchDestinyPlayer
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return nil, errors.New("Error retrieving dRes")
-    }
+	// Get and parse the response body
+	var dRes models.SearchDestinyPlayer
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return nil, errors.New("Error retrieving dRes")
+	}
 
-    // Build the return (Icon Path, Member ID)
-    retVal := [][]string{};
-    for _, e := range dRes.Response {
-        retVal = append(retVal, []string{e.IconPath, e.MembershipID})
-    }
-    return retVal, nil
+	// Build the return (Icon Path, Member ID)
+	retVal := [][]string{}
+	for _, e := range dRes.Response {
+		retVal = append(retVal, []string{e.IconPath, e.MembershipID})
+	}
+	return retVal, nil
 }
 
 // Retrieve the membership ID associated with the displayName
 // PUBLIC Endpoint
 // Returns a string of the Membership ID
 func GetMembershipIdByDisplayName(displayName string, ignoreCase bool) (string, error) {
-    // Build the uri
-    // {membershipType}/Stats/GetMembershipIdByDisplayName/{displayName}
-    uri := strconv.Itoa(MembershipType) + "/Stats/GetMembershipIdByDisplayName/" + displayName
-    if ignoreCase {
-        uri += "?ignorecase=true"
-    }
+	// Build the uri
+	// {membershipType}/Stats/GetMembershipIdByDisplayName/{displayName}
+	uri := strconv.Itoa(MembershipType) + "/Stats/GetMembershipIdByDisplayName/" + displayName
+	if ignoreCase {
+		uri += "?ignorecase=true"
+	}
 
-    // Get and parse the response
-    var dRes models.MembershipIdByDisplayName
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return "", errors.New("Error retrieving data")
-    }
+	// Get and parse the response
+	var dRes models.MembershipIdByDisplayName
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return "", errors.New("Error retrieving data")
+	}
 
-    // Return the body's response value, as that's the membership ID
-    return dRes.Response, nil
+	// Return the body's response value, as that's the membership ID
+	return dRes.Response, nil
 }
 
 // Retrieve the summary information for a given membership id
 // PUBLIC Endpoint
 // Returns Account's Grimoire Score and all Characters
 func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []models.Character, error) {
-    // Build the uri
-    // {membershipType}/Account/{destinyMembershipId}/Summary
-    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Summary"
-    if definitions {
-        uri += "?definitions=true"
-    }
+	// Build the uri
+	// {membershipType}/Account/{destinyMembershipId}/Summary
+	uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Summary"
+	if definitions {
+		uri += "?definitions=true"
+	}
 
-    // Get and parse the response
-    var dRes models.AccountSummaryResponse
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return -1, nil, errors.New("Error retrieving data")
-    }
+	// Get and parse the response
+	var dRes models.AccountSummaryResponse
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return -1, nil, errors.New("Error retrieving data")
+	}
 
-    // Build the return
-    // TODO: Only interested in the following; think about only returning these instead of entire characters
-    // Account Grimoire Score
-    // Character's CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
-    grimoireScore := dRes.Response.Data.GrimoireScore
-    characters := dRes.Response.Data.Characters
-    return grimoireScore, characters, nil
+	// Build the return
+	// TODO: Only interested in the following; think about only returning these instead of entire characters
+	// Account Grimoire Score
+	// Character's CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
+	grimoireScore := dRes.Response.Data.GrimoireScore
+	characters := dRes.Response.Data.Characters
+	return grimoireScore, characters, nil
 }
 
 // Get a singular character inventory summary information
 // PUBLIC Endpoint -- Note: To get a more detailed overview, use GetDestinyAccountCharacterComplete
 // Returns a Character
 func GetCharacterSummary(destinyMembershipId string, characterId string, definitions bool) (models.Character, error) {
-    // Build the uri
-    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/
-    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId
-    if definitions {
-        uri += "?definitions=true"
-    }
+	// Build the uri
+	// {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/
+	uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId
+	if definitions {
+		uri += "?definitions=true"
+	}
 
-    // Get and parse the response
-    var dRes models.CharacterSummary
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return models.Character{}, errors.New("Error retrieving data")
-    }
+	// Get and parse the response
+	var dRes models.CharacterSummary
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return models.Character{}, errors.New("Error retrieving data")
+	}
 
-    // Return the Character
-    // TODO: Only interested in the following; think about only returning these instead an entire character
-    // CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
-    return dRes.Response.Data, nil
+	// Return the Character
+	// TODO: Only interested in the following; think about only returning these instead an entire character
+	// CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
+	return dRes.Response.Data, nil
 }
 
 // Get a singular character inventory summary information
 // PUBLIC Endpoint
 // TODO: Actually return the information?
-func GetCharacterInventorySummary (destinyMembershipId string, characterId string, definitions bool) {
-    // Build the uri
-    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/Summary
-    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
-    if definitions {
-        uri += "?definitions=true"
-    }
+func GetCharacterInventorySummary(destinyMembershipId string, characterId string, definitions bool) {
+	// Build the uri
+	// {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/Summary
+	uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Inventory/Summary"
+	if definitions {
+		uri += "?definitions=true"
+	}
 
-    // Get and parse the response
-    var dRes models.CharacterInventorySummary
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return
-    }
+	// Get and parse the response
+	var dRes models.CharacterInventorySummary
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return
+	}
 
-    // Show off some stuff
-    fmt.Println("===CharInvSum===")
-    fmt.Println("Char:", characterId)
-    for i, e := range dRes.Response.Data.Items {
-        fmt.Println("Item", i, e.ItemHash, e.ItemID)
-    }
-    for i, e := range dRes.Response.Data.Currencies {
-        fmt.Println("Cur", i, e.ItemHash, e.Value)
-    }
-    fmt.Println("================")
+	// Show off some stuff
+	fmt.Println("===CharInvSum===")
+	fmt.Println("Char:", characterId)
+	for i, e := range dRes.Response.Data.Items {
+		fmt.Println("Item", i, e.ItemHash, e.ItemID)
+	}
+	for i, e := range dRes.Response.Data.Currencies {
+		fmt.Println("Cur", i, e.ItemHash, e.Value)
+	}
+	fmt.Println("================")
 }
 
 // Get a singular character progression information
 // PUBLIC Endpoint
 // TODO: Actually return the information?
 func GetCharacterProgression(destinyMembershipId string, characterId string, definitions bool) {
-    // Build the uri
-    // {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Progression/
-    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
-    if definitions {
-        uri += "?definitions=true"
-    }
+	// Build the uri
+	// {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Progression/
+	uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Character/" + characterId + "/Progression"
+	if definitions {
+		uri += "?definitions=true"
+	}
 
-    // Get and parse the response body
-    var dRes models.CharacterProgression
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return
-    }
+	// Get and parse the response body
+	var dRes models.CharacterProgression
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return
+	}
 
-    // Show off some stuff
-    fmt.Println("===CharPro===")
-    fmt.Println("Char:", characterId)
-    fmt.Println("Index, Hash, Current")
-    for i, e := range dRes.Response.Data.Progressions {
-        fmt.Println(i, e.ProgressionHash, e.CurrentProgress)
-    }
-    fmt.Println("=============")
+	// Show off some stuff
+	fmt.Println("===CharPro===")
+	fmt.Println("Char:", characterId)
+	fmt.Println("Index, Hash, Current")
+	for i, e := range dRes.Response.Data.Progressions {
+		fmt.Println(i, e.ProgressionHash, e.CurrentProgress)
+	}
+	fmt.Println("=============")
 }
 
 // Returns all items for a given account
 func GetAllItemsSummary(destinyMembershipId string, definitions bool) {
-    // Build the uri
-    // {membershipType}/Account/{destinyMembershipId}/Items
-    uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Items"
-    if definitions {
-        uri += "?definitions=true"
-    }
+	// Build the uri
+	// {membershipType}/Account/{destinyMembershipId}/Items
+	uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Items"
+	if definitions {
+		uri += "?definitions=true"
+	}
 
-    // Get and parse the response body
-    var dRes models.AllItemsSummary
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return
-    }
+	// Get and parse the response body
+	var dRes models.AllItemsSummary
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return
+	}
 
-    fmt.Println("===AllItemSum===")
-    for i, e := range dRes.Response.Data.Items {
-        fmt.Println(i, e.ItemHash)
-    }
-    fmt.Println("================")
+	fmt.Println("===AllItemSum===")
+	for i, e := range dRes.Response.Data.Items {
+		fmt.Println(i, e.ItemHash)
+	}
+	fmt.Println("================")
 }
 
 // Returns the specific item from the current manifest a json object
 func GetDestinySingleDefinition(definitionType int, definitionID string, definitions bool) {
-    // Build the uri
-    // Manifest/{definitionType}/{definitionId}/
-    uri := "/Manifest/" + strconv.Itoa(definitionType) + "/" + definitionID
-    if definitions {
-        uri += "?definitions=true"
-    }
+	// Build the uri
+	// Manifest/{definitionType}/{definitionId}/
+	uri := "/Manifest/" + strconv.Itoa(definitionType) + "/" + definitionID
+	if definitions {
+		uri += "?definitions=true"
+	}
 
-    // Get and parse the response body
-    var dRes interface{}
-    dataErr := getData(uri, &dRes)
-    if dataErr != nil {
-        log.Fatal("dataErr: ", dataErr)
-        return
-    }
+	// Get and parse the response body
+	var dRes interface{}
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return
+	}
 
-    fmt.Println(dRes)
+	fmt.Println(dRes)
 
-    // Note: dRes's data changes based on definitionType
+	// Note: dRes's data changes based on definitionType
 
-    // For Inventory Items, we're iterested in:
-    // ItemName, ItemDescription, Icon, HasIcon, SecondaryIcon
+	// For Inventory Items, we're iterested in:
+	// ItemName, ItemDescription, Icon, HasIcon, SecondaryIcon
 }
 
 //////////////////////////////
 // Private helper functions //
 //////////////////////////////
 
-
-
 // TEMP - Grab a display name from a local file
 func getDName() (string, error) {
-    dName := os.Getenv("DISPLAYNAME")
+	dName := os.Getenv("DISPLAYNAME")
 
-    // Temp - If unable to get OS env, just read from local text
-    if dName == "" {
-        readKey, readErr := ioutil.ReadFile("DestinyName.txt")
-        if readErr != nil {
-            log.Fatal("readErr: ", readErr)
-            return "", errors.New("Error reading DestinyName.txt")
-        }
-        return string(readKey), nil
-    }
+	// Temp - If unable to get OS env, just read from local text
+	if dName == "" {
+		readKey, readErr := ioutil.ReadFile("DestinyName.txt")
+		if readErr != nil {
+			log.Fatal("readErr: ", readErr)
+			return "", errors.New("Error reading DestinyName.txt")
+		}
+		return string(readKey), nil
+	}
 
-    return dName, nil
+	return dName, nil
 }
 
 // Grab an API key from a local file
 func getAPIKey() (string, error) {
-    aKey := os.Getenv("APIKEY")
+	aKey := os.Getenv("APIKEY")
 
-    // Temp - If unable to get OS env, just read from local text
-    if aKey == "" {
-        readKey, readErr := ioutil.ReadFile("DestinyKey.txt")
-        if readErr != nil {
-            log.Fatal("readErr: ", readErr)
-            return "", errors.New("Error reading DestinyKey.txt")
-        }
-        return string(readKey), nil
-    }
+	// Temp - If unable to get OS env, just read from local text
+	if aKey == "" {
+		readKey, readErr := ioutil.ReadFile("DestinyKey.txt")
+		if readErr != nil {
+			log.Fatal("readErr: ", readErr)
+			return "", errors.New("Error reading DestinyKey.txt")
+		}
+		return string(readKey), nil
+	}
 
-    return aKey, nil
+	return aKey, nil
 }
 
 // Make a GET request using the supplied uri
 func getBody(uri string) ([]byte, error) {
-    // Build the request
-    url := ApiUrl + uri
-    req, reqErr := http.NewRequest("GET", url, nil)
-    if reqErr != nil {
-        log.Fatal("reqErr: ", reqErr)
-        return nil, errors.New("Error building NewRequest")
-    }
+	// Build the request
+	url := ApiUrl + uri
+	req, reqErr := http.NewRequest("GET", url, nil)
+	if reqErr != nil {
+		log.Fatal("reqErr: ", reqErr)
+		return nil, errors.New("Error building NewRequest")
+	}
 
-    // Grab the API key to add to the request
-    apiKey, apiErr := getAPIKey()
-    if apiErr != nil {
-        log.Fatal("apiErr: ", apiErr)
-        return nil, errors.New("Error getting API key")
-    }
-    req.Header.Add("X-API-Key", apiKey)
+	// Grab the API key to add to the request
+	apiKey, apiErr := getAPIKey()
+	if apiErr != nil {
+		log.Fatal("apiErr: ", apiErr)
+		return nil, errors.New("Error getting API key")
+	}
+	req.Header.Add("X-API-Key", apiKey)
 
-    // Build the client and send the request
-    client := &http.Client{}
-    resp, respErr := client.Do(req)
-    if respErr != nil {
-        log.Fatal("respErr: ", respErr)
-        return nil, errors.New("Error making response")
-    }
+	// Build the client and send the request
+	client := &http.Client{}
+	resp, respErr := client.Do(req)
+	if respErr != nil {
+		log.Fatal("respErr: ", respErr)
+		return nil, errors.New("Error making response")
+	}
 
-    // Close the body
-    defer resp.Body.Close()
+	// Close the body
+	defer resp.Body.Close()
 
-    // Read the content into a byte array
-    body, bodyErr := ioutil.ReadAll(resp.Body)
-    if bodyErr != nil {
-        log.Fatal("bodyErr: ", bodyErr)
-        return nil, errors.New("Error reading response body")
-    }
+	// Read the content into a byte array
+	body, bodyErr := ioutil.ReadAll(resp.Body)
+	if bodyErr != nil {
+		log.Fatal("bodyErr: ", bodyErr)
+		return nil, errors.New("Error reading response body")
+	}
 
-    return body, nil
+	return body, nil
 }
 
 // Retrieve the stored data of a given uri, and populate the the supplied interface
 func getData(uri string, dRes interface{}) error {
-    // Get the body from the uri
-    var body, bodyErr = getBody(uri)
-    if bodyErr != nil {
-        log.Fatal("bodyErr: ", bodyErr)
-        return errors.New("Error retrieving body")
-    }
+	// Get the body from the uri
+	var body, bodyErr = getBody(uri)
+	if bodyErr != nil {
+		log.Fatal("bodyErr: ", bodyErr)
+		return errors.New("Error retrieving body")
+	}
 
-    // Populate the interface with the retrieved body data
-    jErr := json.Unmarshal(body, &dRes)
-    if jErr != nil {
-        log.Fatal("jErr: ", jErr)
-        return errors.New("Error unmarshalling body")
-    }
+	// Populate the interface with the retrieved body data
+	jErr := json.Unmarshal(body, &dRes)
+	if jErr != nil {
+		log.Fatal("jErr: ", jErr)
+		return errors.New("Error unmarshalling body")
+	}
 
-    return nil
+	return nil
 }

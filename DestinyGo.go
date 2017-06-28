@@ -7,9 +7,9 @@ import (
     "io/ioutil"
     "encoding/json"
     "errors"
-    "./models"
+    "src/github.com/heroku/DestinyGo/models"
     "strconv"
-    "./constants"
+    "src/github.com/heroku/DestinyGo/constants"
 )
 
 var (

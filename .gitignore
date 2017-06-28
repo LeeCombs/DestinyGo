@@ -3,3 +3,4 @@
 *.txt
 output.json
 .env
+vendor/*/

@@ -3,12 +3,13 @@ package main
 import (
     "fmt"
     "log"
+    "os"
+    "errors"
+    "strconv"
     "net/http"
     "io/ioutil"
     "encoding/json"
-    "errors"
     "DestinyGo/models"
-    "strconv"
     "DestinyGo/constants"
 )
 
@@ -21,12 +22,11 @@ var (
 func main() {
     // Temporary
     // Grab the display name from a local file, for now
-    readKey, readErr := ioutil.ReadFile("DestinyName.txt")
-    if readErr != nil {
-        log.Fatal("readErr: ", readErr)
-        return 
-    }
-    DisplayName = string(readKey)
+    DisplayName = os.Getenv("DISPLAYNAME")
+    fmt.Println("dName: " + DisplayName)
+
+    akey := os.Getenv("APIKEI")
+    fmt.Println("akey: " + akey)
 
     // Get the membership ID and display the account's character summaries
     memID, _ := GetMembershipIdByDisplayName(DisplayName, false)
@@ -298,12 +298,7 @@ func GetDestinySingleDefinition(definitionType int, definitionID string, definit
 
 // Grab an API key from a local file
 func getAPIKey() (string, error) {
-    readKey, readErr := ioutil.ReadFile("DestinyKey.txt")
-    if readErr != nil {
-        log.Fatal("readErr: ", readErr)
-        return "", errors.New("Error reading DestinyKey.txt")
-    }
-    return string(readKey), nil
+    return string(os.Getenv("APIKEY")), nil
 }
 
 // Make a GET request using the supplied uri

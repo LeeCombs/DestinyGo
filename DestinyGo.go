@@ -80,9 +80,16 @@ func handleSearch() gin.HandlerFunc {
 			return
 		}
 
+		gScore, chars, _ := GetAccountSummary(dPlayers[0]["membershipID"], false)
+		for i, e := range chars {
+			fmt.Println(i, e["CharacterID"])
+		}
+
 		c.HTML(http.StatusOK, "searchUser.tmpl", gin.H{
 			"iconPath":    dPlayers[0]["iconPath"],
 			"displayName": dName,
+			"gScore":      gScore,
+			"chars":       chars,
 		})
 	}
 
@@ -143,8 +150,8 @@ func GetMembershipIdByDisplayName(displayName string, ignoreCase bool) (string, 
 
 // Retrieve the summary information for a given membership id
 // PUBLIC Endpoint
-// Returns Account's Grimoire Score and all Characters
-func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []models.Character, error) {
+// Returns Account's Grimoire Score and basic Character information
+func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []map[string]interface{}, error) {
 	// Build the uri
 	// {membershipType}/Account/{destinyMembershipId}/Summary
 	uri := strconv.Itoa(MembershipType) + "/Account/" + destinyMembershipId + "/Summary"
@@ -161,12 +168,20 @@ func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []mod
 	}
 
 	// Build the return
-	// TODO: Only interested in the following; think about only returning these instead of entire characters
-	// Account Grimoire Score
-	// Character's CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
+	// Currently interested in: CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
+	chars := []map[string]interface{}{}
+	for _, e := range dRes.Response.Data.Characters {
+		chars = append(chars, map[string]interface{}{
+			"CharacterID":    e.CharacterBase.CharacterID,
+			"CharacterLevel": e.BaseCharacterLevel,
+			"PowerLevel":     e.CharacterBase.PowerLevel,
+			"EmblemPath":     e.EmblemPath,
+			"BackgroundPath": e.BackgroundPath,
+		})
+	}
+
 	grimoireScore := dRes.Response.Data.GrimoireScore
-	characters := dRes.Response.Data.Characters
-	return grimoireScore, characters, nil
+	return grimoireScore, chars, nil
 }
 
 // Get a singular character inventory summary information

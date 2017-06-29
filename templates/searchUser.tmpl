@@ -8,5 +8,16 @@
             <img src="http://www.bungie.net{{ .iconPath }}">
             {{ .displayName }}
         </div>
+        <div>
+            {{ range $i, $e := .chars }}
+                <div>
+                    {{ $i }}
+                    Character Level:{{ $e.CharacterLevel }}
+                    Light Level:{{ $e.PowerLevel }}
+                    <img src="http://www.bungie.net{{ $e.BackgroundPath }}">
+                    <img src="http://www.bungie.net{{ $e.EmblemPath }}">
+                </div>
+            {{ end }}
+        </div>
     </body>
 </html>

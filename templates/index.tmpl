@@ -15,4 +15,10 @@
         <p><strong>{{ $k }}</strong>:{{ $v }}</p>
         {{ end }}
     </h3>
+    <body>
+        <form action="/searchUser" method="post">
+            displayName:<input type="text" name="displayName">
+            <input type="submit" name="search">
+        </form>
+    </body>
 </html>

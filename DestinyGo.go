@@ -43,59 +43,7 @@ func main() {
 		})
 	})
 
-	router.GET("/searchUser", handleSearch())
-
-	// Get the membership ID and display the account's character summaries
-	// memID, _ := GetMembershipIdByDisplayName(DisplayName, false)
-
-	// Getting an Account Summary
-	/*
-	   grimScore, characters, accSumErr := GetAccountSummary(memID, false)
-	   if accSumErr != nil {
-	      log.Fatal("accSumErr", accSumErr)
-	      return
-	   }
-	   fmt.Println("Grimoire Score", grimScore)
-	   for _, char := range characters {
-	      fmt.Println()
-	      fmt.Println("Character:", char.CharacterBase.CharacterID)
-	      fmt.Println("Level:", char.CharacterLevel)
-	      fmt.Println("Light:", char.CharacterBase.PowerLevel)
-	      fmt.Println("EmblemPath:", char.EmblemPath)
-	      fmt.Println("BackgroundPath:", char.BackgroundPath)
-	   }
-	*/
-
-	// Getting a Character Summary
-	/*
-	   char, charErr := GetCharacterSummary(memID, "2305843009333417637", false)
-	   if charErr != nil {
-	       log.Fatal("charErr", charErr)
-	       return
-	   }
-	   fmt.Println("Character:", char.CharacterBase.CharacterID)
-	   fmt.Println("Level:", char.CharacterLevel)
-	   fmt.Println("Light:", char.CharacterBase.PowerLevel)
-	   fmt.Println("EmblemPath:", char.EmblemPath)
-	   fmt.Println("BackgroundPath:", char.BackgroundPath)
-	*/
-
-	// Searching for a player
-	/*
-	   dPlayers, searchErr :=  SearchDestinyPlayer(DisplayName)
-	   if searchErr != nil {
-	       log.Fatal("searchErr: ", searchErr)
-	       return
-	   }
-	   fmt.Println(dPlayers)
-	*/
-
-	// GetCharacterProgression(memID, "2305843009333417637", false)
-	// GetCharacterInventorySummary(memID, "2305843009333417637", false)
-	// GetAllItemsSummary(memID, false)
-
-	// GetDestinySingleDefinition(int(constants.DefinitionTypeInventoryItem), "2878029263", false)
-	// fmt.Println(memID)
+	router.POST("/searchUser", handleSearch())
 
 	// Serve
 	port := os.Getenv("PORT")
@@ -112,9 +60,30 @@ func main() {
 
 func handleSearch() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		displayName := c.Query("displayName")
+		c.Request.ParseForm()
 
-		c.String(http.StatusOK, "Searching for: %s", displayName)
+		fmt.Println(c.Request.PostForm)
+
+		for k, v := range c.Request.PostForm {
+			fmt.Println("kv", k, v)
+		}
+
+		dName := c.Request.PostForm["displayName"][0]
+		fmt.Println("dName", dName)
+
+		dPlayers, _ := SearchDestinyPlayer(dName)
+		fmt.Println("dPlayers", dPlayers)
+
+		if len(dPlayers) <= 0 {
+			fmt.Println("No player(s) found")
+			c.String(http.StatusNotFound, "Player not found")
+			return
+		}
+
+		c.HTML(http.StatusOK, "searchUser.tmpl", gin.H{
+			"iconPath":    dPlayers[0][0],
+			"displayName": dName,
+		})
 	}
 
 	return gin.HandlerFunc(fn)
@@ -127,6 +96,7 @@ func handleSearch() gin.HandlerFunc {
 // Search for Destiner players by display name
 // PUBLIC Endpoint
 // Returns a 2D array of [[IconPath, MembershipID]]
+// TODO: Convert this to a map return
 func SearchDestinyPlayer(displayName string) ([][]string, error) {
 	// Build the uri
 	// SearchDestinyPlayer/{membershipType}/{displayName}/

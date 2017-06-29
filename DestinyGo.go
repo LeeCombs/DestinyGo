@@ -81,7 +81,7 @@ func handleSearch() gin.HandlerFunc {
 		}
 
 		c.HTML(http.StatusOK, "searchUser.tmpl", gin.H{
-			"iconPath":    dPlayers[0][0],
+			"iconPath":    dPlayers[0]["iconPath"],
 			"displayName": dName,
 		})
 	}
@@ -97,7 +97,7 @@ func handleSearch() gin.HandlerFunc {
 // PUBLIC Endpoint
 // Returns a 2D array of [[IconPath, MembershipID]]
 // TODO: Convert this to a map return
-func SearchDestinyPlayer(displayName string) ([][]string, error) {
+func SearchDestinyPlayer(displayName string) ([]map[string]string, error) {
 	// Build the uri
 	// SearchDestinyPlayer/{membershipType}/{displayName}/
 	uri := "SearchDestinyPlayer/" + strconv.Itoa(MembershipType) + "/" + displayName
@@ -111,9 +111,9 @@ func SearchDestinyPlayer(displayName string) ([][]string, error) {
 	}
 
 	// Build the return (Icon Path, Member ID)
-	retVal := [][]string{}
+	retVal := []map[string]string{}
 	for _, e := range dRes.Response {
-		retVal = append(retVal, []string{e.IconPath, e.MembershipID})
+		retVal = append(retVal, map[string]string{"iconPath": e.IconPath, "membershipID": e.MembershipID})
 	}
 	return retVal, nil
 }

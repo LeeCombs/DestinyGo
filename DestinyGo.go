@@ -98,7 +98,11 @@ func main() {
 	// fmt.Println(memID)
 
 	// Serve
-	router.Run(":8787")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8787"
+	}
+	router.Run(":" + port)
 }
 
 //////////////

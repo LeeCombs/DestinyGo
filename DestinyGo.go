@@ -25,6 +25,22 @@ var (
 func main() {
 	fmt.Println("Runnin' the program")
 
+	// Testing
+
+	// Read and load the local manifest file
+	var miniManifest map[string]map[int64]map[string]interface{}
+	file, fileErr := ioutil.ReadFile("./static/MiniMani.json")
+	if fileErr != nil {
+		log.Fatal("fileErr", fileErr)
+		return
+	}
+	json.Unmarshal(file, &miniManifest)
+
+	fmt.Println(miniManifest["DestinyActivityCategoryDefinition"][1025694749]["Title"])
+	for i, e := range miniManifest["DestinyActivityCategoryDefinition"][1025694749] {
+		fmt.Println(i, e)
+	}
+
 	// Temporary
 	// Grab the display name from a local file, for now
 	DisplayName, _ = getDName()
@@ -80,7 +96,7 @@ func handleSearch() gin.HandlerFunc {
 			return
 		}
 
-		gScore, chars, _ := GetAccountSummary(dPlayers[0]["membershipID"], false)
+		gScore, chars, _ := GetAccountSummary(dPlayers[0]["membershipID"], true)
 		for i, e := range chars {
 			fmt.Println(i, e["CharacterID"])
 		}
@@ -177,6 +193,8 @@ func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []map
 			"PowerLevel":     e.CharacterBase.PowerLevel,
 			"EmblemPath":     e.EmblemPath,
 			"BackgroundPath": e.BackgroundPath,
+			"CharacterHash":  e.CharacterBase.ClassHash,
+			"RaceHash":       e.CharacterBase.RaceHash,
 		})
 	}
 
@@ -381,7 +399,6 @@ func getBody(uri string) ([]byte, error) {
 		log.Fatal("respErr: ", respErr)
 		return nil, errors.New("Error making response")
 	}
-
 	// Close the body
 	defer resp.Body.Close()
 
@@ -391,6 +408,8 @@ func getBody(uri string) ([]byte, error) {
 		log.Fatal("bodyErr: ", bodyErr)
 		return nil, errors.New("Error reading response body")
 	}
+
+	ioutil.WriteFile("output.json", body, 0644)
 
 	return body, nil
 }

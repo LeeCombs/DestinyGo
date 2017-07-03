@@ -1,6 +1,31 @@
 <html>
     <head>
         <title>Search User</title>
+        <style>
+        .character-display {
+            background: #633;
+            display: flex;
+            justify-content: space-between;
+            background-repeat: no-repeat;
+            max-width: 474px;
+        }
+        .character-icon {
+            background: #663;
+            width: 96px;
+            height: 96px;
+            flex: 1;
+        }
+        .character-info {
+            background: #636;
+            flex: 4;
+        }
+        .character-levels {
+            background: #888;
+            width: 96px;
+            height: 96px;
+            flex: 1;
+        }
+        </style>
     </head>
     <body>
         <h1>Search User</h1>
@@ -10,12 +35,18 @@
         </div>
         <div>
             {{ range $i, $e := .chars }}
-                <div>
-                    {{ $i }}
-                    Character Level:{{ $e.CharacterLevel }}
-                    Light Level:{{ $e.PowerLevel }}
-                    <img src="http://www.bungie.net{{ $e.BackgroundPath }}">
-                    <img src="http://www.bungie.net{{ $e.EmblemPath }}">
+                <div class="character-display" style="background-image: url(http://www.bungie.net{{ $e.BackgroundPath }})">
+                    <div class="character-icon">
+                        <img src="http://www.bungie.net{{ $e.EmblemPath }}">
+                    </div>
+                    <div class="character-info">
+                        Human Warlock
+                        Clan Name
+                    </div>
+                    <div class="character-levels">
+                        <strong>Level:{{ $e.CharacterLevel }}</strong>
+                        <span class="light-level">Light Level:{{ $e.PowerLevel }}</span>
+                    </div>
                 </div>
             {{ end }}
         </div>

@@ -20,13 +20,11 @@ var (
 	ApiUrl         = "https://www.bungie.net/Platform/Destiny/"
 	MembershipType = 1 // Xbox = 1, PSN = 2
 	DisplayName    = "UserNameHere"
-	MiniManifest   map[string]map[int64]map[string]interface{}
+	MiniManifest   models.MiniMani
 )
 
 func main() {
 	fmt.Println("Runnin' the program")
-
-	// Testing
 
 	// Read and load the local manifest file
 	file, fileErr := ioutil.ReadFile("./static/MiniMani.json")
@@ -34,12 +32,8 @@ func main() {
 		log.Fatal("fileErr", fileErr)
 		return
 	}
-	json.Unmarshal(file, &MiniManifest)
-
-	fmt.Println(MiniManifest["DestinyActivityCategoryDefinition"][1025694749]["Title"])
-	for i, _ := range MiniManifest {
-		fmt.Println("i", i)
-	}
+	err := json.Unmarshal(file, &MiniManifest)
+	fmt.Println("err", err)
 
 	// Temporary
 	// Grab the display name from a local file, for now
@@ -177,28 +171,15 @@ func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []map
 	chars := []map[string]interface{}{}
 	for _, e := range dRes.Response.Data.Characters {
 
-		ClassDef := MiniManifest["DestinyClassDefinition"]
-		RaceDef := MiniManifest["DestinyRaceDefinition"]
-
-		fmt.Println("class", ClassDef)
-		fmt.Println("race", RaceDef)
-
-		var genderName string
-		if e.CharacterBase.GenderType == 0 {
-			genderName = "Male"
-		} else {
-			genderName = "Female"
-		}
-
 		chars = append(chars, map[string]interface{}{
 			"CharacterID":    e.CharacterBase.CharacterID,
 			"CharacterLevel": e.BaseCharacterLevel,
 			"PowerLevel":     e.CharacterBase.PowerLevel,
 			"EmblemPath":     e.EmblemPath,
 			"BackgroundPath": e.BackgroundPath,
-			"ClassName":      ClassDef[e.CharacterBase.ClassHash]["ClassName"],
-			"RaceName":       RaceDef[e.CharacterBase.RaceHash]["RaceName"],
-			"GenderName":     genderName,
+			"ClassName":      MiniManifest.DestinyClassDefinition[e.CharacterBase.ClassHash].ClassName,
+			"RaceName":       MiniManifest.DestinyRaceDefinition[e.CharacterBase.RaceHash].RaceName,
+			"GenderName":     MiniManifest.DestinyGenderDefinition[e.CharacterBase.GenderHash].GenderName,
 		})
 	}
 

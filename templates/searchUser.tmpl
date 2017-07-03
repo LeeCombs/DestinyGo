@@ -16,14 +16,36 @@
             flex: 1;
         }
         .character-info {
-            background: #636;
             flex: 4;
+            color: #FFF;
+            font-size: 20;
         }
         .character-levels {
-            background: #888;
             width: 96px;
             height: 96px;
             flex: 1;
+
+            display: flex;
+            display: -webkit-flex;
+
+            flex-direction: column;
+            -webkit-flex-direction: column;
+
+            justify-content: center;
+            align-content: center;
+            font-weight: bold;
+        }
+        .character-level {
+            color: #FFF;
+            font-size: 40;
+            align-self: center;
+            margin: auto;
+        }
+        .light-level {
+            color: #FF0;
+            font-size: 20;
+            align-self: center;
+            margin: auto;
         }
         </style>
     </head>
@@ -40,12 +62,13 @@
                         <img src="http://www.bungie.net{{ $e.EmblemPath }}">
                     </div>
                     <div class="character-info">
-                        Human Warlock
-                        Clan Name
+                        {{ $e.RaceName }}
+                        {{ $e.GenderName }}
+                        {{ $e.ClassName }} 
                     </div>
-                    <div class="character-levels">
-                        <strong>Level:{{ $e.CharacterLevel }}</strong>
-                        <span class="light-level">Light Level:{{ $e.PowerLevel }}</span>
+                    <div class="character-levels column">
+                        <div class="character-level">{{ $e.CharacterLevel }}</div>
+                        <div class="light-level">&diams; {{ $e.PowerLevel }}</div>
                     </div>
                 </div>
             {{ end }}

@@ -20,6 +20,7 @@ var (
 	ApiUrl         = "https://www.bungie.net/Platform/Destiny/"
 	MembershipType = 1 // Xbox = 1, PSN = 2
 	DisplayName    = "UserNameHere"
+	MiniManifest   map[string]map[int64]map[string]interface{}
 )
 
 func main() {
@@ -28,17 +29,16 @@ func main() {
 	// Testing
 
 	// Read and load the local manifest file
-	var miniManifest map[string]map[int64]map[string]interface{}
 	file, fileErr := ioutil.ReadFile("./static/MiniMani.json")
 	if fileErr != nil {
 		log.Fatal("fileErr", fileErr)
 		return
 	}
-	json.Unmarshal(file, &miniManifest)
+	json.Unmarshal(file, &MiniManifest)
 
-	fmt.Println(miniManifest["DestinyActivityCategoryDefinition"][1025694749]["Title"])
-	for i, e := range miniManifest["DestinyActivityCategoryDefinition"][1025694749] {
-		fmt.Println(i, e)
+	fmt.Println(MiniManifest["DestinyActivityCategoryDefinition"][1025694749]["Title"])
+	for i, _ := range MiniManifest {
+		fmt.Println("i", i)
 	}
 
 	// Temporary
@@ -76,31 +76,20 @@ func main() {
 
 func handleSearch() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
+		// Parse the form and grab the supplied user name
 		c.Request.ParseForm()
-
-		fmt.Println(c.Request.PostForm)
-
-		for k, v := range c.Request.PostForm {
-			fmt.Println("kv", k, v)
-		}
-
 		dName := c.Request.PostForm["displayName"][0]
-		fmt.Println("dName", dName)
 
+		// Search for the player
 		dPlayers, _ := SearchDestinyPlayer(dName)
-		fmt.Println("dPlayers", dPlayers)
-
 		if len(dPlayers) <= 0 {
 			fmt.Println("No player(s) found")
 			c.String(http.StatusNotFound, "Player not found")
 			return
 		}
 
+		// Grab the account summary and populate the character info
 		gScore, chars, _ := GetAccountSummary(dPlayers[0]["membershipID"], true)
-		for i, e := range chars {
-			fmt.Println(i, e["CharacterID"])
-		}
-
 		c.HTML(http.StatusOK, "searchUser.tmpl", gin.H{
 			"iconPath":    dPlayers[0]["iconPath"],
 			"displayName": dName,
@@ -187,14 +176,29 @@ func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []map
 	// Currently interested in: CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
 	chars := []map[string]interface{}{}
 	for _, e := range dRes.Response.Data.Characters {
+
+		ClassDef := MiniManifest["DestinyClassDefinition"]
+		RaceDef := MiniManifest["DestinyRaceDefinition"]
+
+		fmt.Println("class", ClassDef)
+		fmt.Println("race", RaceDef)
+
+		var genderName string
+		if e.CharacterBase.GenderType == 0 {
+			genderName = "Male"
+		} else {
+			genderName = "Female"
+		}
+
 		chars = append(chars, map[string]interface{}{
 			"CharacterID":    e.CharacterBase.CharacterID,
 			"CharacterLevel": e.BaseCharacterLevel,
 			"PowerLevel":     e.CharacterBase.PowerLevel,
 			"EmblemPath":     e.EmblemPath,
 			"BackgroundPath": e.BackgroundPath,
-			"CharacterHash":  e.CharacterBase.ClassHash,
-			"RaceHash":       e.CharacterBase.RaceHash,
+			"ClassName":      ClassDef[e.CharacterBase.ClassHash]["ClassName"],
+			"RaceName":       RaceDef[e.CharacterBase.RaceHash]["RaceName"],
+			"GenderName":     genderName,
 		})
 	}
 

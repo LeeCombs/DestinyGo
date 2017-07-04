@@ -73,5 +73,16 @@
                 </div>
             {{ end }}
         </div>
+        <div>
+            {{ range $i, $e := .statResp }}
+                <div>
+                    ID: {{ $i }} <br />
+                    {{ range $a, $b := $e }}
+                        <div>{{ $a }}: {{ $b }}</div>
+                    {{ end }}
+                </div>
+                </br />
+            {{ end }}
+        </div>
     </body>
 </html>

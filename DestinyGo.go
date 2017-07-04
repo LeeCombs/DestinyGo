@@ -84,11 +84,23 @@ func handleSearch() gin.HandlerFunc {
 
 		// Grab the account summary and populate the character info
 		gScore, chars, _ := GetAccountSummary(dPlayers[0]["membershipID"], true)
+
+		statResp := make(map[string]map[string]string)
+
+		for _, c := range chars {
+			fmt.Println(c)
+			fmt.Println(c["CharacterID"])
+			statResp[c["CharacterID"].(string)] = GetHistoricalStats(dPlayers[0]["membershipID"], c["CharacterID"].(string))
+		}
+
+		fmt.Println(statResp)
+
 		c.HTML(http.StatusOK, "searchUser.tmpl", gin.H{
 			"iconPath":    dPlayers[0]["iconPath"],
 			"displayName": dName,
 			"gScore":      gScore,
 			"chars":       chars,
+			"statResp":    statResp,
 		})
 	}
 
@@ -319,6 +331,47 @@ func GetDestinySingleDefinition(definitionType int, definitionID string, definit
 
 	// For Inventory Items, we're iterested in:
 	// ItemName, ItemDescription, Icon, HasIcon, SecondaryIcon
+}
+
+// Returns the specific item from the current manifest a json object
+func GetHistoricalStats(destinyMembershipId string, characterID string) map[string]string {
+	// Build the uri
+	// Manifest/{definitionType}/{definitionId}/
+	// Stats/{membershipType}/{destinyMembershipId}/{characterId}/
+	uri := "/Stats/" + strconv.Itoa(MembershipType) + "/" + destinyMembershipId + "/" + characterID
+
+	// Get and parse the response body
+	var dRes models.HistoricalResponse
+	dataErr := getData(uri, &dRes)
+	if dataErr != nil {
+		log.Fatal("dataErr: ", dataErr)
+		return nil
+	}
+
+	retVal := make(map[string]string)
+
+	pvpStats := dRes.Response.AllPvP.AllTime
+
+	retVal["Kills"] = pvpStats.Kills.Basic.DisplayValue
+	retVal["Deaths"] = pvpStats.Deaths.Basic.DisplayValue
+	retVal["Score"] = pvpStats.Score.Basic.DisplayValue
+	retVal["CombatRating"] = pvpStats.CombatRating.Basic.DisplayValue
+	retVal["LongestSpree"] = pvpStats.LongestKillSpree.Basic.DisplayValue
+	retVal["LongestLife"] = pvpStats.LongestSingleLife.Basic.DisplayValue
+	retVal["BestKills"] = pvpStats.BestSingleGameKills.Basic.DisplayValue
+	retVal["BestScore"] = pvpStats.BestSingleGameScore.Basic.DisplayValue
+	retVal["BestWeapon"] = pvpStats.WeaponBestType.Basic.DisplayValue
+
+	return retVal
+	/*
+		fmt.Println("Kills", dRes.Response.allPVP.allTime.kills.basic.displayValue)
+		fmt.Println("Score", dRes.Response.allPVP.allTime.score.basic.displayValue)
+		fmt.Println("PrecisionKills", dRes.Response.allPVP.allTime.precisionKills.basic.displayValue)
+		fmt.Println("LongestSpree", dRes.Response.allPVP.allTime.longestKillSpree.basic.displayValue)
+		fmt.Println("BestSingleKill", dRes.Response.allPVP.allTime.bestSingleGameKills.basic.displayValue)
+		fmt.Println("BestSingleScore", dRes.Response.allPVP.allTime.bestSingleGameScore.basic.displayValue)
+		fmt.Println("BestWeapon", dRes.Response.allPVP.allTime.weaponBestType.basic.displayValue)
+	*/
 }
 
 //////////////////////////////

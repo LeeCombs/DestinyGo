@@ -340,6 +340,15 @@ func GetHistoricalStats(destinyMembershipId string, characterID string) map[stri
 	// Stats/{membershipType}/{destinyMembershipId}/{characterId}/
 	uri := "/Stats/" + strconv.Itoa(MembershipType) + "/" + destinyMembershipId + "/" + characterID
 
+	// Additional Query String params
+	// ?periodType (0-4) PeriodType Enum
+	// ?modes (0-36) DestinyActivityModeType Enum
+	// ?groups (1-4) Some DestinyStatsGroupType Enum
+	// ?monthstart - YYYY-MM
+	// ?monthend - YYYY-MM
+	// ?daystart - YYYY-MM-DD
+	// ?dayend - YYYY-MM-DD
+
 	// Get and parse the response body
 	var dRes models.HistoricalResponse
 	dataErr := getData(uri, &dRes)
@@ -363,15 +372,6 @@ func GetHistoricalStats(destinyMembershipId string, characterID string) map[stri
 	retVal["BestWeapon"] = pvpStats.WeaponBestType.Basic.DisplayValue
 
 	return retVal
-	/*
-		fmt.Println("Kills", dRes.Response.allPVP.allTime.kills.basic.displayValue)
-		fmt.Println("Score", dRes.Response.allPVP.allTime.score.basic.displayValue)
-		fmt.Println("PrecisionKills", dRes.Response.allPVP.allTime.precisionKills.basic.displayValue)
-		fmt.Println("LongestSpree", dRes.Response.allPVP.allTime.longestKillSpree.basic.displayValue)
-		fmt.Println("BestSingleKill", dRes.Response.allPVP.allTime.bestSingleGameKills.basic.displayValue)
-		fmt.Println("BestSingleScore", dRes.Response.allPVP.allTime.bestSingleGameScore.basic.displayValue)
-		fmt.Println("BestWeapon", dRes.Response.allPVP.allTime.weaponBestType.basic.displayValue)
-	*/
 }
 
 //////////////////////////////

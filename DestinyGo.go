@@ -59,6 +59,8 @@ func handleSearch() gin.HandlerFunc {
 		c.Request.ParseForm()
 		dName := c.Request.PostForm["displayName"][0]
 
+		fmt.Println("Searching for:", dName)
+
 		// Search for the player
 		dPlayers, _ := controllers.SearchDestinyPlayer(dName)
 		if len(dPlayers) <= 0 {
@@ -73,12 +75,9 @@ func handleSearch() gin.HandlerFunc {
 		statResp := make(map[string]map[string]string)
 
 		for _, c := range chars {
-			fmt.Println(c)
 			fmt.Println(c["CharacterID"])
 			statResp[c["CharacterID"].(string)] = controllers.GetHistoricalStats(dPlayers[0]["membershipID"], c["CharacterID"].(string))
 		}
-
-		fmt.Println(statResp)
 
 		c.HTML(http.StatusOK, "searchUser.tmpl", gin.H{
 			"iconPath":    dPlayers[0]["iconPath"],

@@ -20,6 +20,20 @@ var (
 	MiniManifest   models.MiniMani
 )
 
+// Read and load the local manifest file
+func init() {
+	file, fileErr := ioutil.ReadFile("./static/MiniMani.json")
+	if fileErr != nil {
+		log.Fatal("fileErr:", fileErr)
+		return
+	}
+
+	jsonErr := json.Unmarshal(file, &MiniManifest)
+	if jsonErr != nil {
+		fmt.Println("jsonErr:", jsonErr)
+	}
+}
+
 /////////////////
 // Destiny API //
 /////////////////
@@ -27,7 +41,6 @@ var (
 // Search for Destiner players by display name
 // PUBLIC Endpoint
 // Returns a 2D array of [[IconPath, MembershipID]]
-// TODO: Convert this to a map return
 func SearchDestinyPlayer(displayName string) ([]map[string]string, error) {
 	// Build the uri
 	// SearchDestinyPlayer/{membershipType}/{displayName}/
@@ -37,7 +50,7 @@ func SearchDestinyPlayer(displayName string) ([]map[string]string, error) {
 	var dRes models.SearchDestinyPlayer
 	dataErr := getData(uri, &dRes)
 	if dataErr != nil {
-		log.Fatal("dataErr: ", dataErr)
+		log.Fatal("dataErr:", dataErr)
 		return nil, errors.New("Error retrieving dRes")
 	}
 
@@ -91,11 +104,9 @@ func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []map
 		return -1, nil, errors.New("Error retrieving data")
 	}
 
-	// Build the return
-	// Currently interested in: CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
+	// Build the character info
 	chars := []map[string]interface{}{}
 	for _, e := range dRes.Response.Data.Characters {
-
 		chars = append(chars, map[string]interface{}{
 			"CharacterID":    e.CharacterBase.CharacterID,
 			"CharacterLevel": e.BaseCharacterLevel,
@@ -132,14 +143,12 @@ func GetCharacterSummary(destinyMembershipId string, characterId string, definit
 	}
 
 	// Return the Character
-	// TODO: Only interested in the following; think about only returning these instead an entire character
-	// CharacterID, CharacterLevel, PowerLevel, EmblemPath, BackgroundPath
 	return dRes.Response.Data, nil
 }
 
 // Get a singular character inventory summary information
 // PUBLIC Endpoint
-// TODO: Actually return the information?
+// TODO: Actually return the information
 func GetCharacterInventorySummary(destinyMembershipId string, characterId string, definitions bool) {
 	// Build the uri
 	// {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/Summary
@@ -170,7 +179,7 @@ func GetCharacterInventorySummary(destinyMembershipId string, characterId string
 
 // Get a singular character progression information
 // PUBLIC Endpoint
-// TODO: Actually return the information?
+// TODO: Actually return the information
 func GetCharacterProgression(destinyMembershipId string, characterId string, definitions bool) {
 	// Build the uri
 	// {membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Progression/
@@ -183,7 +192,7 @@ func GetCharacterProgression(destinyMembershipId string, characterId string, def
 	var dRes models.CharacterProgression
 	dataErr := getData(uri, &dRes)
 	if dataErr != nil {
-		log.Fatal("dataErr: ", dataErr)
+		log.Fatal("dataErr:", dataErr)
 		return
 	}
 
@@ -210,7 +219,7 @@ func GetAllItemsSummary(destinyMembershipId string, definitions bool) {
 	var dRes models.AllItemsSummary
 	dataErr := getData(uri, &dRes)
 	if dataErr != nil {
-		log.Fatal("dataErr: ", dataErr)
+		log.Fatal("dataErr:", dataErr)
 		return
 	}
 
@@ -234,7 +243,7 @@ func GetDestinySingleDefinition(definitionType int, definitionID string, definit
 	var dRes interface{}
 	dataErr := getData(uri, &dRes)
 	if dataErr != nil {
-		log.Fatal("dataErr: ", dataErr)
+		log.Fatal("dataErr:", dataErr)
 		return
 	}
 

@@ -86,6 +86,7 @@ func handleSearch() gin.HandlerFunc {
 			// Doing a little additional remapping of character data to this output
 			stats[charID] = make(map[string]string)
 			stats[charID] = statResp
+			stats[charID]["CharacterID"] = charID
 			stats[charID]["CharacterLevel"] = strconv.Itoa(c["CharacterLevel"].(int))
 			stats[charID]["PowerLevel"] = strconv.Itoa(c["PowerLevel"].(int))
 			stats[charID]["EmblemPath"] = c["EmblemPath"].(string)

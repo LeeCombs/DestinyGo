@@ -42,9 +42,6 @@
                 
             }
         </style>
-        
-        <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-
     </head>
     <body>
         <div class="site-body">
@@ -63,113 +60,5 @@
                 </div>
             </div>
         </div>
-        <br/>
-        <br/>
-        <br/>
-        <div class="charts">
-            <div class="chart" id="chartContainerPrimary" style="height: 300px; width: 25%;"></div>
-            <div class="chart" id="chartContainerSecondary" style="height: 300px; width: 25%;"></div>
-            <div class="chart" id="chartContainerHeavy" style="height: 300px; width: 25%;"></div>
-            <div class="chart" id="chartContainerOther" style="height: 300px; width: 25%;"></div>
-        </div>
-        
-        <script type="text/javascript">
-        window.onload = function () {
-            var chart = new CanvasJS.Chart("chartContainerPrimary",
-            {
-                theme: "theme1",
-                title:{
-                    text: "PvP Primary Kill Stats"
-                },
-                data: [
-                {       
-                    type: "pie",
-                    showInLegend: true,
-                    legendText: "{name}",
-                    toolTipContent: "{name} - {y} - #percent %",
-                    yValueFormatString: "#,###",
-                    dataPoints: [
-                        {  y: 61, name: "Auto Rifle" },
-                        {  y: 661, name: "Pulse Rifle" },
-                        {  y: 1790, name: "Scout Rifle" },
-                        {  y: 153, name: "Hand Cannon" }
-                    ]
-                }
-                ]
-            });
-            chart.render();
-            
-            var chart2 = new CanvasJS.Chart("chartContainerSecondary",
-            {
-                theme: "theme1",
-                title:{
-                    text: "PvP Secondary Kill Stats"
-                },
-                data: [
-                {       
-                    type: "pie",
-                    showInLegend: true,
-                    legendText: "{name}",
-                    toolTipContent: "{name} - {y} - #percent %",
-                    yValueFormatString: "#,###",
-                    dataPoints: [
-                        {  y: 31, name: "Shotgun" },
-                        {  y: 0, name: "Side Arm" },
-                        {  y: 1923, name: "Sniper" },
-                        {  y: 21, name: "Fusion Rifle" }
-                    ]
-                }
-                ]
-            });
-            chart2.render();
-            
-            var chart3 = new CanvasJS.Chart("chartContainerHeavy",
-            {
-                theme: "theme1",
-                title:{
-                    text: "PvP Secondary Kill Stats"
-                },
-                data: [
-                {       
-                    type: "pie",
-                    showInLegend: true,
-                    legendText: "{name}",
-                    toolTipContent: "{name} - {y} - #percent %",
-                    yValueFormatString: "#,###",
-                    dataPoints: [
-                        {  y: 50, name: "Machine Gun" },
-                        {  y: 253, name: "Rocket Launcher" },
-                        {  y: 4, name: "Sword" }
-                    ]
-                }
-                ]
-            });
-            chart3.render();
-            
-            var chart4 = new CanvasJS.Chart("chartContainerOther",
-            {
-                theme: "theme1",
-                title:{
-                    text: "PvP Other Kill Stats"
-                },
-                data: [
-                {       
-                    type: "pie",
-                    showInLegend: true,
-                    legendText: "{name}",
-                    toolTipContent: "{name} - {y} - #percent %",
-                    yValueFormatString: "#,###",
-                    dataPoints: [
-                        {  y: 1111, name: "Super" },
-                        {  y: 170, name: "Melee" },
-                        {  y: 421, name: "Grenade" },
-                        {  y: 146, name: "Relic" }
-                    ]
-                }
-                ]
-            });
-            chart4.render();
-        }
-        </script>
     </body>
 </html>

@@ -80,6 +80,7 @@
                 background-color: darkgreen;
             }
         </style>
+        <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     </head>
     <body>
         <div class="site-body">
@@ -128,6 +129,34 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="chart" id="ccp{{$e.CharacterID}}" style="height: 250px; width: 25%;"></div>
+                    <script type="text/javascript">
+                    console.log("ccp{{$e.CharacterID}}");
+                    var chart = new CanvasJS.Chart("ccp{{$e.CharacterID}}",
+                    {
+                        theme: "theme1",
+                        title:{
+                            text: "PvP Kills/Deaths"
+                        },
+                        data: [
+                        {       
+                            type: "pie",
+                            showInLegend: true,
+                            legendText: "{label}",
+                            toolTipContent: "{label}: {y} - #percent %",
+                            yValueFormatString: "#,###",
+                            dataPoints: [
+                                {  y: {{ index $e "Deaths" }}, label: "Deaths" },
+                                {  y: {{ index $e "Kills" }}, label: "Kills" }
+                            ]
+                        }
+                        ]
+                    });
+                    console.log(chart);
+                    chart.render();
+                    </script>
+                    
                 </div>
                 {{ end }}
             </div>

@@ -73,32 +73,19 @@ func handleSearch() gin.HandlerFunc {
 		// Grab the account summary and populate the character info
 		gScore, chars, _ := controllers.GetAccountSummary(dPlayers[0]["membershipID"], true)
 
-		// map[characterID]map[stat]value
+		// stats = map[characterID]map[stat]value
 		stats := make(map[string]map[string]string)
 
-		// TODO: Plan the output for consumption
-
 		for _, c := range chars {
-			fmt.Println(c)
 			charID := c["CharacterID"].(string)
+			fmt.Println(charID)
 
 			statResp := make(map[string]string)
 			statResp = controllers.GetHistoricalStats(dPlayers[0]["membershipID"], charID)
-			fmt.Println(statResp)
-
-			fmt.Printf("%T", c["CharacterID"])
-			fmt.Println(c["CharacterID"])
-
-			fmt.Printf("%T", c["PowerLevel"])
-			fmt.Println(c["PowerLevel"])
-
-			fmt.Printf("%T", c["CharacterLevel"])
-			fmt.Println(c["CharacterLevel"])
-
-			stats[charID] = make(map[string]string)
-			stats[charID] = statResp
 
 			// Doing a little additional remapping of character data to this output
+			stats[charID] = make(map[string]string)
+			stats[charID] = statResp
 			stats[charID]["CharacterLevel"] = strconv.Itoa(c["CharacterLevel"].(int))
 			stats[charID]["PowerLevel"] = strconv.Itoa(c["PowerLevel"].(int))
 			stats[charID]["EmblemPath"] = c["EmblemPath"].(string)

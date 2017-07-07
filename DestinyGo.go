@@ -113,8 +113,7 @@ func handleSearch() gin.HandlerFunc {
 			"iconPath":    dPlayers[0]["iconPath"],
 			"displayName": dName,
 			"gScore":      gScore,
-			"chars":       chars,
-			"statResp":    stats,
+			"stats":       stats,
 		})
 	}
 

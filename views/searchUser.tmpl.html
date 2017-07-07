@@ -85,26 +85,23 @@
         <div class="account-info">
             <img src="http://www.bungie.net{{ .iconPath }}">
             {{ .displayName }}
+            <span>Grimoire Score: {{ .gScore }}</span>
         </div>
         <div class="character-display">
-            {{ range $i, $e := .chars }}
+            {{ range $i, $e := .stats }}
             <div class="character">
                 <div class="character-nameplate" style="background-image: url(http://www.bungie.net{{ $e.BackgroundPath }})">
                     <div class="character-icon">
                         <img src="http://www.bungie.net{{ $e.EmblemPath }}">
                     </div>
                     <div class="character-info">
-                        {{ $e.RaceName }}
-                        {{ $e.GenderName }}
-                        {{ $e.ClassName }} 
+                        {{ index $e "RaceName" }}
+                        {{ index $e "GenderName" }}
+                        {{ index $e "ClassName" }} 
                     </div>
                     <div class="character-levels">
-                        <!--
-                        <span class="character-level">{{ $e.CharacterLevel }}</span>
-                        <span class="power-level">&diams; {{ $e.PowerLevel }}</span>
-                        -->
-                        <span class="character-level">{{ $e.CharacterLevel }}</span>
-                        <span class="power-level">&diams; {{ $e.PowerLevel }}</span>
+                        <span class="character-level">{{ index $e "CharacterLevel" }}</span>
+                        <span class="power-level">&diams; {{ index $e "PowerLevel" }}</span>
                     </div>
                 </div>
             </div>
@@ -114,31 +111,22 @@
                         PVP Stats
                     </div>
                     <div class="stats-list">
-                        <!-- Loop pvp stats here -->
+                        <!-- Would prefer a loop -->
                         <div class="stat">
-                            <div class="stat-name">Kills</div>
-                            <div class="stat-value">100</div>
+                            <span class="stat-name">Kills</span>
+                            <span class="stat-value">{{ index $e "Kills" }}</span>
                         </div>
                         <div class="stat">
-                            <div class="stat-name">Deaths</div>
-                            <div class="stat-value">10</div>
+                            <span class="stat-name">Deaths</span>
+                            <span class="stat-value">{{ index $e "Deaths" }}</span>
                         </div>
                         <div class="stat">
-                            <div class="stat-name">K/D</div>
-                            <div class="stat-value">10.0</div>
+                            <span class="stat-name">Best Single Game Kills</span>
+                            <span class="stat-value">{{ index $e "BestKills" }}</span>
                         </div>
-                        <!-- end loop -->
                     </div>
                 </div>
             </div>
-            {{ end }}
-        </div>
-        <div>
-            {{ range $i, $e := .statResp }}
-                ID:{{ $i }}
-                {{ range $a, $b := $e }}
-                    {{ $a }}: {{ $b }}
-                {{ end }}
             {{ end }}
         </div>
     </body>

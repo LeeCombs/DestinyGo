@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>DestinyGo</title>
+        <link href="http://designers.hubspot.com/hs-fs/hub/327485/file-2054199286-css/font-awesome.css" rel="stylesheet">
+        <style>
+            body {
+                background-color: darkslategray;
+                display: flex;
+                display: -webkit-flex;
+                flex-direction: column;
+                -webkit-flex-direction: column;
+                align-items: center;
+            }
+            h1 {
+                color: white;
+                font-weight: bold;
+                font-size: 50px;
+            }
+            .search-box {
+                color: white;
+                height: 40px;
+                width: 400px;
+                text-align: center;
+            }
+            .search-box input {
+                height: 100%;
+                width: 350px;
+                align-self: flex-start;
+            }
+            .search-box button {
+                height: 40px;
+                width: 40px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>
+            DestinyGo
+        </h1>
+        <div class="search-box">
+            <span style="font-size:20px;">Search PvP Stats</span>
+            <div class="player=search">
+                <form action="/searchUser" method="post">
+                    <input type="text" placeholder="Username" name="displayName">
+                    <button type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

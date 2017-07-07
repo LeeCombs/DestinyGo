@@ -31,7 +31,7 @@ func main() {
 
 	// Set up routes
 	router.GET("/index", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+		c.HTML(http.StatusOK, "index.tmpl.html", gin.H{
 			"title":       "DestinyGo",
 			"displayName": DisplayName,
 			"chars":       searchChars,
@@ -79,7 +79,7 @@ func handleSearch() gin.HandlerFunc {
 			statResp[c["CharacterID"].(string)] = controllers.GetHistoricalStats(dPlayers[0]["membershipID"], c["CharacterID"].(string))
 		}
 
-		c.HTML(http.StatusOK, "searchUser.tmpl", gin.H{
+		c.HTML(http.StatusOK, "searchUser.tmpl.html", gin.H{
 			"iconPath":    dPlayers[0]["iconPath"],
 			"displayName": dName,
 			"gScore":      gScore,

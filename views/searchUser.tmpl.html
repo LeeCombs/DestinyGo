@@ -1,0 +1,133 @@
+<html>
+    <head>
+        <title>Search User</title>
+        <link href="http://designers.hubspot.com/hs-fs/hub/327485/file-2054199286-css/font-awesome.css" rel="stylesheet">
+        <style>
+            body {
+                background-color: darkslategray;
+                display: flex;
+                display: -webkit-flex;
+                flex-direction: column;
+                -webkit-flex-direction: column;
+                align-items: center;
+            }
+            h1 {
+                color: white;
+                size: 30px;
+            }
+            
+            .account-info {
+                color: white;
+                height: 50px;
+                font-size: 32px;
+                width: auto;
+            }
+            
+            .character-display {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                background-repeat: no-repeat;
+                width: 100%;
+                padding-left: 10px;
+            }
+            .character {
+                background-color: darkslategray;
+                opacity: 50%;
+            }
+            .character-nameplate {
+                display: flex;
+                justify-content: space-between;
+                flex-direction: row;
+                max-width: 474px;
+            }
+            .character-icon {
+                width: 96px;
+                height: 96px;
+                background-color: gray;
+            }
+            .character-info {
+                color: white;
+                font-size: 20px;
+                text-align: left;
+                font-weight: bold;
+                flex: 1;
+            }
+            .character-levels {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-content: center;
+                width: 80px;
+                font-weight: bold;
+            }
+            .character-level {
+                color: white;
+                align-self: center;
+                font-size: 50;
+                margin:auto;
+            }
+            .power-level {
+                color: yellow;
+                align-self: center;
+                font-size: 20;
+                margin:auto;
+            }
+            
+            .pvp-stats {
+                background-color: darkgreen;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <h1>Search User</h1>
+        <div class="account-info">
+            <img src="http://www.bungie.net{{ .iconPath }}">
+            {{ .displayName }}
+        </div>
+        <div class="character-display">
+            {{ range $i, $e := .chars }}
+            <div class="character">
+                <div class="character-nameplate" style="background-image: url(http://www.bungie.net{{ $e.BackgroundPath }})">
+                    <div class="character-icon">
+                        <img src="http://www.bungie.net{{ $e.EmblemPath }}">
+                    </div>
+                    <div class="character-info">
+                        {{ $e.RaceName }}
+                        {{ $e.GenderName }}
+                        {{ $e.ClassName }} 
+                    </div>
+                    <div class="character-levels">
+                        <!--
+                        <span class="character-level">{{ $e.CharacterLevel }}</span>
+                        <span class="power-level">&diams; {{ $e.PowerLevel }}</span>
+                        -->
+                        <span class="character-level">{{ $e.CharacterLevel }}</span>
+                        <span class="power-level">&diams; {{ $e.PowerLevel }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="pvp-stats">
+                PVP STATS<br/>
+                Kills<br/>
+                Deaths<br/>
+                Etc.<br/>
+            </div>
+            {{ end }}
+        </div>
+        <!--
+        <div>
+            {{ range $i, $e := .statResp }}
+                <div>
+                    ID: {{ $i }} <br />
+                    {{ range $a, $b := $e }}
+                        <div>{{ $a }}: {{ $b }}</div>
+                    {{ end }}
+                </div>
+                </br />
+            {{ end }}
+        </div>
+        -->
+    </body>
+</html>

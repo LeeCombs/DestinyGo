@@ -293,6 +293,23 @@ func GetHistoricalStats(destinyMembershipId string, characterID string) map[stri
 	retVal["BestScore"] = pvpStats.BestSingleGameScore.Basic.DisplayValue
 	retVal["BestWeapon"] = pvpStats.WeaponBestType.Basic.DisplayValue
 
+	retVal["AutoRifle"] = pvpStats.WeaponKillsAutoRifle.Basic.DisplayValue
+	retVal["FusionRifle"] = pvpStats.WeaponKillsFusionRifle.Basic.DisplayValue
+	retVal["Grenade"] = pvpStats.WeaponKillsGrenade.Basic.DisplayValue
+	retVal["HandCannon"] = pvpStats.WeaponKillsHandCannon.Basic.DisplayValue
+	retVal["MachineGun"] = pvpStats.WeaponKillsMachinegun.Basic.DisplayValue
+	retVal["Melee"] = pvpStats.WeaponKillsMelee.Basic.DisplayValue
+	retVal["PulseRifle"] = pvpStats.WeaponKillsPulseRifle.Basic.DisplayValue
+	retVal["Relic"] = pvpStats.WeaponKillsRelic.Basic.DisplayValue
+	retVal["RocketLauncher"] = pvpStats.WeaponKillsRocketLauncher.Basic.DisplayValue
+	retVal["ScoutRifle"] = pvpStats.WeaponKillsScoutRifle.Basic.DisplayValue
+	retVal["Shotgun"] = pvpStats.WeaponKillsShotgun.Basic.DisplayValue
+	retVal["SideArm"] = pvpStats.WeaponKillsSideArm.Basic.DisplayValue
+	retVal["Sniper"] = pvpStats.WeaponKillsSniper.Basic.DisplayValue
+	retVal["SubMachineGun"] = pvpStats.WeaponKillsSubmachinegun.Basic.DisplayValue
+	retVal["Super"] = pvpStats.WeaponKillsSuper.Basic.DisplayValue
+	retVal["Sword"] = pvpStats.WeaponKillsSword.Basic.DisplayValue
+
 	return retVal
 }
 

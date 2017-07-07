@@ -133,5 +133,13 @@
             </div>
             {{ end }}
         </div>
+        <div>
+            {{ range $i, $e := .statResp }}
+                ID:{{ $i }}
+                {{ range $a, $b := $e }}
+                    {{ $a }}: {{ $b }}
+                {{ end }}
+            {{ end }}
+        </div>
     </body>
 </html>

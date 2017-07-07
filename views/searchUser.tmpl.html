@@ -109,25 +109,29 @@
                 </div>
             </div>
             <div class="pvp-stats">
-                PVP STATS<br/>
-                Kills<br/>
-                Deaths<br/>
-                Etc.<br/>
+                <div class="stat-card">
+                    <div class="card-heading">
+                        PVP Stats
+                    </div>
+                    <div class="stats-list">
+                        <!-- Loop pvp stats here -->
+                        <div class="stat">
+                            <div class="stat-name">Kills</div>
+                            <div class="stat-value">100</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-name">Deaths</div>
+                            <div class="stat-value">10</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-name">K/D</div>
+                            <div class="stat-value">10.0</div>
+                        </div>
+                        <!-- end loop -->
+                    </div>
+                </div>
             </div>
             {{ end }}
         </div>
-        <!--
-        <div>
-            {{ range $i, $e := .statResp }}
-                <div>
-                    ID: {{ $i }} <br />
-                    {{ range $a, $b := $e }}
-                        <div>{{ $a }}: {{ $b }}</div>
-                    {{ end }}
-                </div>
-                </br />
-            {{ end }}
-        </div>
-        -->
     </body>
 </html>

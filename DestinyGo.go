@@ -75,7 +75,6 @@ func handleSearch() gin.HandlerFunc {
 		statResp := make(map[string]map[string]string)
 
 		for _, c := range chars {
-			fmt.Println(c["CharacterID"])
 			statResp[c["CharacterID"].(string)] = controllers.GetHistoricalStats(dPlayers[0]["membershipID"], c["CharacterID"].(string))
 		}
 

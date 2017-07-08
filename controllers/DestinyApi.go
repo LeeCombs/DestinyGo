@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
 
 	"DestinyGo/models"
 )

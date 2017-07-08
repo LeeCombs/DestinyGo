@@ -292,6 +292,8 @@ func GetHistoricalStats(destinyMembershipId string, characterID string) map[stri
 	retVal["BestKills"] = pvpStats.BestSingleGameKills.Basic.DisplayValue
 	retVal["BestScore"] = pvpStats.BestSingleGameScore.Basic.DisplayValue
 	retVal["BestWeapon"] = pvpStats.WeaponBestType.Basic.DisplayValue
+	retVal["OrbsDropped"] = pvpStats.OrbsDropped.Basic.DisplayValue
+	retVal["Assists"] = pvpStats.Assists.Basic.DisplayValue
 
 	retVal["AutoRifle"] = pvpStats.WeaponKillsAutoRifle.Basic.DisplayValue
 	retVal["FusionRifle"] = pvpStats.WeaponKillsFusionRifle.Basic.DisplayValue

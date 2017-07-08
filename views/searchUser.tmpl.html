@@ -80,6 +80,19 @@
             .pvp-stats {
                 color: white;
             }
+            .stat-group {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-between;
+            }
+            .stat {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                max-width: 400px;
+                width: 50%;
+            }
             .charts {
                 display: flex;
                 display: -webkit-flex;
@@ -119,11 +132,12 @@
                 </div>
                 <div class="pvp-stats">
                     <div class="stat-card">
+                        <hr>
                         <div class="card-heading">
                             PVP Stats
                         </div>
-                        <div class="stats-list">
-                            <!-- Would prefer a loop -->
+                        <hr>
+                        <div class="stat-group">
                             <div class="stat">
                                 <span class="stat-name">Kills</span>
                                 <span class="stat-value">{{ index $e "Kills" }}</span>
@@ -132,21 +146,40 @@
                                 <span class="stat-name">Deaths</span>
                                 <span class="stat-value">{{ index $e "Deaths" }}</span>
                             </div>
+                        </div>
+                        <div class="stat-group">
+                            <div class="stat">
+                                <span class="stat-name">Assists</span>
+                                <span class="stat-value">{{ index $e "Assists" }}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-name">Combat Rating</span>
+                                <span class="stat-value">{{ index $e "CombatRating" }}</span>
+                            </div>
+                        </div>
+                        <div class="stat-group">
+                            <div class="stat">
+                                <span class="stat-name">Orbs Generated</span>
+                                <span class="stat-value">{{ index $e "OrbsDropped" }}</span>
+                            </div>
                             <div class="stat">
                                 <span class="stat-name">Best Single Game Kills</span>
                                 <span class="stat-value">{{ index $e "BestKills" }}</span>
                             </div>
                         </div>
                     </div>
+                    <hr>
                     
                     <div class="charts">
                         <div class="chart" id="primarychart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
                         <div class="chart" id="secondarychart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
                     </div>
+                    <hr>
                     <div class="charts">
                         <div class="chart" id="heavychart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
                         <div class="chart" id="otherchart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
                     </div>
+                    <hr>
                     
                     <script type="text/javascript">
                     

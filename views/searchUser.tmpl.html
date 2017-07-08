@@ -1,7 +1,6 @@
 <html>
     <head>
         <title>{{ .displayName }} - PvP Summary</title>
-        <link href="http://designers.hubspot.com/hs-fs/hub/327485/file-2054199286-css/font-awesome.css" rel="stylesheet">
         <style>
             body {
                 background-color: black;
@@ -105,17 +104,19 @@
         </style>
         <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     </head>
+    
     <body>
         <div class="site-body">
-            <h1>Search User</h1>
+            <h1>{{ .displayName }} PvP Summary</h1>
             <div class="account-info">
                 <img src="http://www.bungie.net{{ .iconPath }}">
-                {{ .displayName }}
                 <span>Grimoire Score: {{ .gScore }}</span>
             </div>
             <div class="character-display">
+                <!-- Iterate character stats and build the output -->
                 {{ range $i, $e := .stats }}
                 <div class="character">
+                    <!-- Destiny Character Nameplate -->
                     <div class="character-nameplate" style="background-image: url(http://www.bungie.net{{ $e.BackgroundPath }})">
                         <div class="character-icon">
                             <img src="http://www.bungie.net{{ $e.EmblemPath }}">
@@ -131,6 +132,8 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- TODO: If a character hasn't participated in Crucible, ignore this -->
                 <div class="pvp-stats">
                     <div class="stat-card">
                         <hr>
@@ -170,7 +173,8 @@
                         </div>
                     </div>
                     <hr>
-                    
+                
+                    <!-- PvP pie charts for weapon type kills -->
                     <div class="charts">
                         <div class="chart" id="primarychart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
                         <div class="chart" id="secondarychart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
@@ -182,9 +186,10 @@
                     </div>
                     <hr>
                     
+                    <!-- Setup and render the pvp pie charts -->
                     <script type="text/javascript">
-                    
                     var dPoints1 = [];
+                    // Add data points if they are a non-zero value
                     if ({{ index $e "ScoutRifle" }} != "0") {
                         dPoints1.push({y: {{ index $e "ScoutRifle" }}, label: "Scout Rifle", indexLabelFontColor: "white" });
                     }
@@ -197,7 +202,7 @@
                     if ({{ index $e "PulseRifle" }} != "0") {
                         dPoints1.push({y: {{ index $e "PulseRifle" }}, label: "Pulse Rifle", indexLabelFontColor: "white" });
                     }
-                    var chart1 = new CanvasJS.Chart("secondarychart{{$e.CharacterID}}",
+                    var chart1 = new CanvasJS.Chart("primarychart{{$e.CharacterID}}",
                     {
                         theme: "theme1",
                         backgroundColor: null,
@@ -205,7 +210,7 @@
                             fontColor: "white"
                         },
                         title:{
-                            text: "PvP Secondary Weapon Stats",
+                            text: "PvP Primary Weapon Stats",
                             fontColor: "white"
                         },
                         data: [
@@ -226,15 +231,15 @@
                         dPoints2.push({y: {{ index $e "Sniper" }}, label: "Sniper", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "SideArm" }} != "0") {
-                        dPoints2.push({y: {{ index $e "SideArm" }}, label: "SideArm", indexLabelFontColor: "white" });
+                        dPoints2.push({y: {{ index $e "SideArm" }}, label: "Side Arm", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "Shotgun" }} != "0") {
-                        dPoints2.push({y: {{ index $e "Shotgun" }}, label: "Hand Cannon", indexLabelFontColor: "white" });
+                        dPoints2.push({y: {{ index $e "Shotgun" }}, label: "Shotgun", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "FusionRifle" }} != "0") {
                         dPoints2.push({y: {{ index $e "FusionRifle" }}, label: "Fusion Rifle", indexLabelFontColor: "white" });
                     }
-                    var chart2 = new CanvasJS.Chart("primarychart{{$e.CharacterID}}",
+                    var chart2 = new CanvasJS.Chart("secondarychart{{$e.CharacterID}}",
                     {
                         theme: "theme1",
                         backgroundColor: null,
@@ -242,7 +247,7 @@
                             fontColor: "white"
                         },
                         title:{
-                            text: "PvP Primary Weapon Stats",
+                            text: "PvP Secondary Weapon Stats",
                             fontColor: "white"
                         },
                         data: [

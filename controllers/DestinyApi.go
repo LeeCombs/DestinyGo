@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 
 	"DestinyGo/models"
 )
@@ -106,18 +107,24 @@ func GetAccountSummary(destinyMembershipId string, definitions bool) (int, []map
 
 	// Build the character info
 	chars := []map[string]interface{}{}
+	wg := sync.WaitGroup{}
+	wg.Add(len(dRes.Response.Data.Characters))
 	for _, e := range dRes.Response.Data.Characters {
-		chars = append(chars, map[string]interface{}{
-			"CharacterID":    e.CharacterBase.CharacterID,
-			"CharacterLevel": e.BaseCharacterLevel,
-			"PowerLevel":     e.CharacterBase.PowerLevel,
-			"EmblemPath":     e.EmblemPath,
-			"BackgroundPath": e.BackgroundPath,
-			"ClassName":      MiniManifest.DestinyClassDefinition[e.CharacterBase.ClassHash].ClassName,
-			"RaceName":       MiniManifest.DestinyRaceDefinition[e.CharacterBase.RaceHash].RaceName,
-			"GenderName":     MiniManifest.DestinyGenderDefinition[e.CharacterBase.GenderHash].GenderName,
-		})
+		go func() {
+			defer wg.Done()
+			chars = append(chars, map[string]interface{}{
+				"CharacterID":    e.CharacterBase.CharacterID,
+				"CharacterLevel": e.BaseCharacterLevel,
+				"PowerLevel":     e.CharacterBase.PowerLevel,
+				"EmblemPath":     e.EmblemPath,
+				"BackgroundPath": e.BackgroundPath,
+				"ClassName":      MiniManifest.DestinyClassDefinition[e.CharacterBase.ClassHash].ClassName,
+				"RaceName":       MiniManifest.DestinyRaceDefinition[e.CharacterBase.RaceHash].RaceName,
+				"GenderName":     MiniManifest.DestinyGenderDefinition[e.CharacterBase.GenderHash].GenderName,
+			})
+		}()
 	}
+	wg.Wait()
 
 	grimoireScore := dRes.Response.Data.GrimoireScore
 	return grimoireScore, chars, nil

@@ -34,43 +34,8 @@
                 width: 40px;
             }
         </style>
-        <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-
     </head>
     <body>
-        <div class="chart" id="secondarychart" style="height: 250px; width: 50%;"></div>
-
-        <script type="text/javascript">
-        var dPoints1 = [];
-        dPoints1.push({y: 1, label: "Scout Rifle", indexLabelFontColor: "white" });
-        dPoints1.push({y: 2, label: "Auto Rifle", indexLabelFontColor: "white" });
-        dPoints1.push({y: 3, label: "Hand Cannon", indexLabelFontColor: "white" });
-        dPoints1.push({y: 4, label: "Pulse Rifle", indexLabelFontColor: "white" });
-        var chart1 = new CanvasJS.Chart("secondarychart",
-        {
-            theme: "theme1",
-            backgroundColor: null,
-            legend: {
-                fontColor: "white"
-            },
-            title:{
-                text: "PvP Secondary Weapon Stats",
-                fontColor: "white"
-            },
-            data: [
-            {       
-                type: "pie",
-                showInLegend: true,
-                legendText: "{label}",
-                toolTipContent: "{label}: {y}",
-                yValueFormatString: "#,###",
-                dataPoints: dPoints1
-            }
-            ]
-        });
-        chart1.render();
-        </script>
-        
         <div class="site-body">
             <h1>
                 DestinyGo

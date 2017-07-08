@@ -4,7 +4,7 @@
         <link href="http://designers.hubspot.com/hs-fs/hub/327485/file-2054199286-css/font-awesome.css" rel="stylesheet">
         <style>
             body {
-                background-color: darkslategray;
+                background-color: black;
             }
             .site-body {
                 display: flex;
@@ -27,14 +27,15 @@
             
             .character-display {
                 display: flex;
+                background-color: darkslategray;
                 flex-direction: column;
                 justify-content: space-between;
                 background-repeat: no-repeat;
                 width: 100%;
                 padding-left: 10px;
+                padding-right: 10px;
             }
             .character {
-                background-color: darkslategray;
                 opacity: 50%;
             }
             .character-nameplate {
@@ -77,7 +78,7 @@
             }
             
             .pvp-stats {
-                background-color: darkgreen;
+                color: white;
             }
             .charts {
                 display: flex;
@@ -151,29 +152,34 @@
                     
                     var dPoints1 = [];
                     if ({{ index $e "ScoutRifle" }} != "0") {
-                        dPoints1.push({y: {{ index $e "ScoutRifle" }}, name: "Scout Rifle" });
+                        dPoints1.push({y: {{ index $e "ScoutRifle" }}, label: "Scout Rifle", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "AutoRifle" }} != "0") {
-                        dPoints1.push({y: {{ index $e "AutoRifle" }}, name: "Auto Rifle" });
+                        dPoints1.push({y: {{ index $e "AutoRifle" }}, label: "Auto Rifle", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "HandCannon" }} != "0") {
-                        dPoints1.push({y: {{ index $e "HandCannon" }}, name: "Hand Cannon" });
+                        dPoints1.push({y: {{ index $e "HandCannon" }}, label: "Hand Cannon", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "PulseRifle" }} != "0") {
-                        dPoints1.push({y: {{ index $e "PulseRifle" }}, name: "Pulse Rifle" });
+                        dPoints1.push({y: {{ index $e "PulseRifle" }}, label: "Pulse Rifle", indexLabelFontColor: "white" });
                     }
                     var chart1 = new CanvasJS.Chart("secondarychart{{$e.CharacterID}}",
                     {
                         theme: "theme1",
+                        backgroundColor: null,
+                        legend: {
+                            fontColor: "white"
+                        },
                         title:{
-                            text: "PvP Secondary Weapon Stats"
+                            text: "PvP Secondary Weapon Stats",
+                            fontColor: "white"
                         },
                         data: [
                         {       
                             type: "pie",
                             showInLegend: true,
-                            legendText: "{name}",
-                            toolTipContent: "{name}: {y}",
+                            legendText: "{label}",
+                            toolTipContent: "{label}: {y}",
                             yValueFormatString: "#,###",
                             dataPoints: dPoints1
                         }
@@ -183,29 +189,34 @@
                         
                     var dPoints2 = [];
                     if ({{ index $e "Sniper" }} != "0") {
-                        dPoints2.push({y: {{ index $e "Sniper" }}, name: "Sniper" });
+                        dPoints2.push({y: {{ index $e "Sniper" }}, label: "Sniper", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "SideArm" }} != "0") {
-                        dPoints2.push({y: {{ index $e "SideArm" }}, name: "SideArm" });
+                        dPoints2.push({y: {{ index $e "SideArm" }}, label: "SideArm", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "Shotgun" }} != "0") {
-                        dPoints2.push({y: {{ index $e "Shotgun" }}, name: "Hand Cannon" });
+                        dPoints2.push({y: {{ index $e "Shotgun" }}, label: "Hand Cannon", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "FusionRifle" }} != "0") {
-                        dPoints2.push({y: {{ index $e "FusionRifle" }}, name: "Fusion Rifle" });
+                        dPoints2.push({y: {{ index $e "FusionRifle" }}, label: "Fusion Rifle", indexLabelFontColor: "white" });
                     }
                     var chart2 = new CanvasJS.Chart("primarychart{{$e.CharacterID}}",
                     {
                         theme: "theme1",
+                        backgroundColor: null,
+                        legend: {
+                            fontColor: "white"
+                        },
                         title:{
-                            text: "PvP Primary Weapon Stats"
+                            text: "PvP Primary Weapon Stats",
+                            fontColor: "white"
                         },
                         data: [
                         {       
                             type: "pie",
                             showInLegend: true,
-                            legendText: "{name}",
-                            toolTipContent: "{name}: {y}",
+                            legendText: "{label}",
+                            toolTipContent: "{label}: {y}",
                             yValueFormatString: "#,###",
                             dataPoints: dPoints2
                         }
@@ -215,26 +226,31 @@
                     
                     var dPoints3 = [];
                     if ({{ index $e "RocketLauncher" }} != "0") {
-                        dPoints3.push({y: {{ index $e "RocketLauncher" }}, name: "Rocket Launcher" });
+                        dPoints3.push({y: {{ index $e "RocketLauncher" }}, label: "Rocket Launcher", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "MachineGun" }} != "0") {
-                        dPoints3.push({y: {{ index $e "MachineGun" }}, name: "Machine Gun" });
+                        dPoints3.push({y: {{ index $e "MachineGun" }}, label: "Machine Gun", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "Sword" }} != "0") {
-                        dPoints3.push({y: {{ index $e "Sword" }}, name: "Sword" });
+                        dPoints3.push({y: {{ index $e "Sword" }}, label: "Sword", indexLabelFontColor: "white" });
                     }
                     var chart3 = new CanvasJS.Chart("heavychart{{$e.CharacterID}}",
                     {
                         theme: "theme1",
+                        backgroundColor: null,
+                        legend: {
+                            fontColor: "white"
+                        },
                         title:{
-                            text: "PvP Heavy Weapon Stats"
+                            text: "PvP Heavy Weapon Stats",
+                            fontColor: "white"
                         },
                         data: [
                         {       
                             type: "pie",
                             showInLegend: true,
-                            legendText: "{name}",
-                            toolTipContent: "{name}: {y}",
+                            legendText: "{label}",
+                            toolTipContent: "{label}: {y}",
                             yValueFormatString: "#,###",
                             dataPoints: dPoints3
                         }
@@ -244,29 +260,34 @@
                     
                     var dPoints4 = [];
                     if ({{ index $e "Grenade" }} != "0") {
-                        dPoints4.push({y: {{ index $e "Grenade" }}, name: "Grenade" });
+                        dPoints4.push({y: {{ index $e "Grenade" }}, label: "Grenade", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "Melee" }} != "0") {
-                        dPoints4.push({y: {{ index $e "Melee" }}, name: "Melee" });
+                        dPoints4.push({y: {{ index $e "Melee" }}, label: "Melee", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "Super" }} != "0") {
-                        dPoints4.push({y: {{ index $e "Super" }}, name: "Super" });
+                        dPoints4.push({y: {{ index $e "Super" }}, label: "Super", indexLabelFontColor: "white" });
                     }
                     if ({{ index $e "Relic" }} != "0") {
-                        dPoints4.push({y: {{ index $e "Relic" }}, name: "Relic" });
+                        dPoints4.push({y: {{ index $e "Relic" }}, label: "Relic", indexLabelFontColor: "white" });
                     }
                     var chart4 = new CanvasJS.Chart("otherchart{{$e.CharacterID}}",
                     {
                         theme: "theme1",
+                        backgroundColor: null,
+                        legend: {
+                            fontColor: "white"
+                        },
                         title:{
-                            text: "PvP Other Weapon Stats"
+                            text: "PvP Other Weapon Stats",
+                            fontColor: "white"
                         },
                         data: [
                         {       
                             type: "pie",
                             showInLegend: true,
-                            legendText: "{name}",
-                            toolTipContent: "{name}: {y}",
+                            legendText: "{label}",
+                            toolTipContent: "{label}: {y}",
                             yValueFormatString: "#,###",
                             dataPoints: dPoints4
                         }

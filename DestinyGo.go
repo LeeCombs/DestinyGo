@@ -119,7 +119,6 @@ func handleSearch() gin.HandlerFunc {
 			}
 
 		}
-		fmt.Println("stats", stats)
 
 		c.HTML(http.StatusOK, "searchUser.tmpl.html", gin.H{
 			"iconPath":    dPlayers[0]["iconPath"],

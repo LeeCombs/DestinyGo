@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 
 	"DestinyGo/controllers"
 
@@ -66,45 +67,53 @@ func handleSearch() gin.HandlerFunc {
 		stats := make(map[string]map[string]string)
 
 		// Iterate the found characters and build the output stats
+		wg := sync.WaitGroup{}
+		wg.Add(len(chars))
 		for _, c := range chars {
 			charID := c["CharacterID"].(string)
 			fmt.Println(charID)
 
-			statResp := make(map[string]string)
-			statResp = controllers.GetHistoricalStats(dPlayers[0]["membershipID"], charID)
+			go func() {
+				defer wg.Done()
 
-			// Doing a little additional remapping of character data to this output
-			stats[charID] = make(map[string]string)
-			stats[charID] = statResp
-			stats[charID]["CharacterID"] = charID
-			stats[charID]["CharacterLevel"] = strconv.Itoa(c["CharacterLevel"].(int))
-			stats[charID]["PowerLevel"] = strconv.Itoa(c["PowerLevel"].(int))
-			stats[charID]["EmblemPath"] = c["EmblemPath"].(string)
-			stats[charID]["BackgroundPath"] = c["BackgroundPath"].(string)
-			stats[charID]["ClassName"] = c["ClassName"].(string)
-			stats[charID]["RaceName"] = c["RaceName"].(string)
-			stats[charID]["GenderName"] = c["GenderName"].(string)
+				statResp := make(map[string]string)
+				statResp = controllers.GetHistoricalStats(dPlayers[0]["membershipID"], charID)
 
-			// Checking for nil AutoRifle since, if that's nil, all pvp stats should be too, and will be skipped
-			if c["AutoRifle"] != nil {
-				stats[charID]["AutoRifle"] = c["AutoRifle"].(string)
-				stats[charID]["HandCannon"] = c["HandCannon"].(string)
-				stats[charID]["PulseRifle"] = c["PulseRifle"].(string)
-				stats[charID]["ScoutRifle"] = c["ScoutRifle"].(string)
-				stats[charID]["FusionRifle"] = c["FusionRifle"].(string)
-				stats[charID]["Shotgun"] = c["Shotgun"].(string)
-				stats[charID]["SideArm"] = c["SideArm"].(string)
-				stats[charID]["Sniper"] = c["Sniper"].(string)
-				stats[charID]["MachineGun"] = c["MachineGun"].(string)
-				stats[charID]["RocketLauncher"] = c["RocketLauncher"].(string)
-				stats[charID]["Sword"] = c["Sword"].(string)
-				stats[charID]["Grenade"] = c["Grenade"].(string)
-				stats[charID]["Melee"] = c["Melee"].(string)
-				stats[charID]["Relic"] = c["Relic"].(string)
-				stats[charID]["Super"] = c["Super"].(string)
-				stats[charID]["SubMachineGun"] = c["SubMachineGun"].(string) // Not used
-			}
+				// Doing a little additional remapping of character data to this output
+				stats[charID] = make(map[string]string)
+				stats[charID] = statResp
+				stats[charID]["CharacterID"] = charID
+				stats[charID]["CharacterLevel"] = strconv.Itoa(c["CharacterLevel"].(int))
+				stats[charID]["PowerLevel"] = strconv.Itoa(c["PowerLevel"].(int))
+				stats[charID]["EmblemPath"] = c["EmblemPath"].(string)
+				stats[charID]["BackgroundPath"] = c["BackgroundPath"].(string)
+				stats[charID]["ClassName"] = c["ClassName"].(string)
+				stats[charID]["RaceName"] = c["RaceName"].(string)
+				stats[charID]["GenderName"] = c["GenderName"].(string)
+
+				// Checking for nil AutoRifle since, if that's nil, all pvp stats should be too, and will be skipped
+				if c["AutoRifle"] != nil {
+					stats[charID]["AutoRifle"] = c["AutoRifle"].(string)
+					stats[charID]["HandCannon"] = c["HandCannon"].(string)
+					stats[charID]["PulseRifle"] = c["PulseRifle"].(string)
+					stats[charID]["ScoutRifle"] = c["ScoutRifle"].(string)
+					stats[charID]["FusionRifle"] = c["FusionRifle"].(string)
+					stats[charID]["Shotgun"] = c["Shotgun"].(string)
+					stats[charID]["SideArm"] = c["SideArm"].(string)
+					stats[charID]["Sniper"] = c["Sniper"].(string)
+					stats[charID]["MachineGun"] = c["MachineGun"].(string)
+					stats[charID]["RocketLauncher"] = c["RocketLauncher"].(string)
+					stats[charID]["Sword"] = c["Sword"].(string)
+					stats[charID]["Grenade"] = c["Grenade"].(string)
+					stats[charID]["Melee"] = c["Melee"].(string)
+					stats[charID]["Relic"] = c["Relic"].(string)
+					stats[charID]["Super"] = c["Super"].(string)
+					stats[charID]["SubMachineGun"] = c["SubMachineGun"].(string) // Not used
+				}
+			}()
+
 		}
+		wg.Wait()
 
 		c.HTML(http.StatusOK, "searchUser.tmpl.html", gin.H{
 			"iconPath":    dPlayers[0]["iconPath"],

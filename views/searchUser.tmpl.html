@@ -79,6 +79,14 @@
             .pvp-stats {
                 background-color: darkgreen;
             }
+            .charts {
+                display: flex;
+                display: -webkit-flex;
+                justify-content: space-between;
+            }
+            .chart {
+                
+            }
         </style>
         <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     </head>
@@ -130,33 +138,142 @@
                         </div>
                     </div>
                     
-                    <div class="chart" id="ccp{{$e.CharacterID}}" style="height: 250px; width: 25%;"></div>
+                    <div class="charts">
+                        <div class="chart" id="primarychart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
+                        <div class="chart" id="secondarychart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
+                    </div>
+                    <div class="charts">
+                        <div class="chart" id="heavychart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
+                        <div class="chart" id="otherchart{{$e.CharacterID}}" style="height: 250px; width: 50%;"></div>
+                    </div>
+                    
                     <script type="text/javascript">
-                    console.log("ccp{{$e.CharacterID}}");
-                    var chart = new CanvasJS.Chart("ccp{{$e.CharacterID}}",
+                    
+                    var dPoints1 = [];
+                    if ({{ index $e "ScoutRifle" }} != "0") {
+                        dPoints1.push({y: {{ index $e "ScoutRifle" }}, name: "Scout Rifle" });
+                    }
+                    if ({{ index $e "AutoRifle" }} != "0") {
+                        dPoints1.push({y: {{ index $e "AutoRifle" }}, name: "Auto Rifle" });
+                    }
+                    if ({{ index $e "HandCannon" }} != "0") {
+                        dPoints1.push({y: {{ index $e "HandCannon" }}, name: "Hand Cannon" });
+                    }
+                    if ({{ index $e "PulseRifle" }} != "0") {
+                        dPoints1.push({y: {{ index $e "PulseRifle" }}, name: "Pulse Rifle" });
+                    }
+                    var chart1 = new CanvasJS.Chart("secondarychart{{$e.CharacterID}}",
                     {
                         theme: "theme1",
                         title:{
-                            text: "PvP Kills/Deaths"
+                            text: "PvP Secondary Weapon Stats"
                         },
                         data: [
                         {       
                             type: "pie",
                             showInLegend: true,
-                            legendText: "{label}",
-                            toolTipContent: "{label}: {y} - #percent %",
+                            legendText: "{name}",
+                            toolTipContent: "{name}: {y}",
                             yValueFormatString: "#,###",
-                            dataPoints: [
-                                {  y: {{ index $e "Deaths" }}, label: "Deaths" },
-                                {  y: {{ index $e "Kills" }}, label: "Kills" }
-                            ]
+                            dataPoints: dPoints1
                         }
                         ]
                     });
-                    console.log(chart);
-                    chart.render();
-                    </script>
+                    chart1.render();
+                        
+                    var dPoints2 = [];
+                    if ({{ index $e "Sniper" }} != "0") {
+                        dPoints2.push({y: {{ index $e "Sniper" }}, name: "Sniper" });
+                    }
+                    if ({{ index $e "SideArm" }} != "0") {
+                        dPoints2.push({y: {{ index $e "SideArm" }}, name: "SideArm" });
+                    }
+                    if ({{ index $e "Shotgun" }} != "0") {
+                        dPoints2.push({y: {{ index $e "Shotgun" }}, name: "Hand Cannon" });
+                    }
+                    if ({{ index $e "FusionRifle" }} != "0") {
+                        dPoints2.push({y: {{ index $e "FusionRifle" }}, name: "Fusion Rifle" });
+                    }
+                    var chart2 = new CanvasJS.Chart("primarychart{{$e.CharacterID}}",
+                    {
+                        theme: "theme1",
+                        title:{
+                            text: "PvP Primary Weapon Stats"
+                        },
+                        data: [
+                        {       
+                            type: "pie",
+                            showInLegend: true,
+                            legendText: "{name}",
+                            toolTipContent: "{name}: {y}",
+                            yValueFormatString: "#,###",
+                            dataPoints: dPoints2
+                        }
+                        ]
+                    });
+                    chart2.render();
                     
+                    var dPoints3 = [];
+                    if ({{ index $e "RocketLauncher" }} != "0") {
+                        dPoints3.push({y: {{ index $e "RocketLauncher" }}, name: "Rocket Launcher" });
+                    }
+                    if ({{ index $e "MachineGun" }} != "0") {
+                        dPoints3.push({y: {{ index $e "MachineGun" }}, name: "Machine Gun" });
+                    }
+                    if ({{ index $e "Sword" }} != "0") {
+                        dPoints3.push({y: {{ index $e "Sword" }}, name: "Sword" });
+                    }
+                    var chart3 = new CanvasJS.Chart("heavychart{{$e.CharacterID}}",
+                    {
+                        theme: "theme1",
+                        title:{
+                            text: "PvP Heavy Weapon Stats"
+                        },
+                        data: [
+                        {       
+                            type: "pie",
+                            showInLegend: true,
+                            legendText: "{name}",
+                            toolTipContent: "{name}: {y}",
+                            yValueFormatString: "#,###",
+                            dataPoints: dPoints3
+                        }
+                        ]
+                    });
+                    chart3.render();
+                    
+                    var dPoints4 = [];
+                    if ({{ index $e "Grenade" }} != "0") {
+                        dPoints4.push({y: {{ index $e "Grenade" }}, name: "Grenade" });
+                    }
+                    if ({{ index $e "Melee" }} != "0") {
+                        dPoints4.push({y: {{ index $e "Melee" }}, name: "Melee" });
+                    }
+                    if ({{ index $e "Super" }} != "0") {
+                        dPoints4.push({y: {{ index $e "Super" }}, name: "Super" });
+                    }
+                    if ({{ index $e "Relic" }} != "0") {
+                        dPoints4.push({y: {{ index $e "Relic" }}, name: "Relic" });
+                    }
+                    var chart4 = new CanvasJS.Chart("otherchart{{$e.CharacterID}}",
+                    {
+                        theme: "theme1",
+                        title:{
+                            text: "PvP Other Weapon Stats"
+                        },
+                        data: [
+                        {       
+                            type: "pie",
+                            showInLegend: true,
+                            legendText: "{name}",
+                            toolTipContent: "{name}: {y}",
+                            yValueFormatString: "#,###",
+                            dataPoints: dPoints4
+                        }
+                        ]
+                    });
+                    chart4.render();
+                    </script>
                 </div>
                 {{ end }}
             </div>

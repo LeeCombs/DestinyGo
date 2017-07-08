@@ -7,3 +7,7 @@ You can see it as it's developed following the link below, but beware they're ve
 
 Currently requires an API key stored in DestinyKey.txt, and a Destiny display name stored in DestinyName.txt, within the same directory
 Or the above can be set as env vars for heroku as APIKEY and DISPLAYNAME
+
+## Example
+
+![alt text](http://i.imgur.com/elYeu7I.png)

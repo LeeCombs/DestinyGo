@@ -5,7 +5,7 @@ You can see it in action following the link below. As this was created as a gola
 
 [Main Page](https://arcane-lowlands-89340.herokuapp.com/index)
 
-If deploying locally this requires an API key stored in DestinyKey.txt in the root folder. If deploying on Heroku, the API key can be set as env var as APIKEY.
+If deploying locally or on Heroku, an API key must be set either in a 'DestinyKey.txt' file in the root directory, or as an ENV var labelled APIKEY.
 
 ## Example
 

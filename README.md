@@ -1,12 +1,11 @@
 # DestinyGo
-Fetches and displays basic Destiny (the game) character PvP information
+Fetches and displays basic Destiny (the game) character PvP information.
 
-You can see it as it's developed following the link below, but beware they're very early in development and are visually unappealing.
+You can see it as it's developed following the link below. As this was created as a golang learning project, the aesthetics of the site may be a tad rough.
 
-["Main" Page](https://arcane-lowlands-89340.herokuapp.com/index)
+[Main Page](https://arcane-lowlands-89340.herokuapp.com/index)
 
-Currently requires an API key stored in DestinyKey.txt, and a Destiny display name stored in DestinyName.txt, within the same directory
-Or the above can be set as env vars for heroku as APIKEY and DISPLAYNAME
+If deploying locally or on Heroku, this requires an API key stored in DestinyKey.txt in teh root folder, or set as env var for Heroku as APIKEY.
 
 ## Example
 

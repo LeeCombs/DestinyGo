@@ -108,15 +108,21 @@
     <body>
         <div class="site-body">
             <h1>{{ .displayName }} PvP Summary</h1>
+            
+            <!-- Display basic account info -->
             <div class="account-info">
                 <img src="http://www.bungie.net{{ .iconPath }}">
                 <span>Grimoire Score: {{ .gScore }}</span>
             </div>
+            
+            <!-- Display character stats -->
             <div class="character-display">
+            
                 <!-- Iterate character stats and build the output -->
                 {{ range $i, $e := .stats }}
+                
+                <!-- Destiny Character Nameplate -->
                 <div class="character">
-                    <!-- Destiny Character Nameplate -->
                     <div class="character-nameplate" style="background-image: url(http://www.bungie.net{{ $e.BackgroundPath }})">
                         <div class="character-icon">
                             <img src="http://www.bungie.net{{ $e.EmblemPath }}">
@@ -188,6 +194,8 @@
                     
                     <!-- Setup and render the pvp pie charts -->
                     <script type="text/javascript">
+                    
+                    <!-- Primary Weapon stats -->
                     var dPoints1 = [];
                     // Add data points if they are a non-zero value
                     if ({{ index $e "ScoutRifle" }} != "0") {
@@ -226,6 +234,7 @@
                     });
                     chart1.render();
                         
+                    <!-- Secondary Weapon stats -->
                     var dPoints2 = [];
                     if ({{ index $e "Sniper" }} != "0") {
                         dPoints2.push({y: {{ index $e "Sniper" }}, label: "Sniper", indexLabelFontColor: "white" });
@@ -263,6 +272,7 @@
                     });
                     chart2.render();
                     
+                    <!-- Heavy Weapon stats -->
                     var dPoints3 = [];
                     if ({{ index $e "RocketLauncher" }} != "0") {
                         dPoints3.push({y: {{ index $e "RocketLauncher" }}, label: "Rocket Launcher", indexLabelFontColor: "white" });
@@ -297,6 +307,7 @@
                     });
                     chart3.render();
                     
+                    <!-- Other Weapon stats -->
                     var dPoints4 = [];
                     if ({{ index $e "Grenade" }} != "0") {
                         dPoints4.push({y: {{ index $e "Grenade" }}, label: "Grenade", indexLabelFontColor: "white" });
@@ -334,9 +345,8 @@
                     });
                     chart4.render();
                     </script>
-                </div>
-                {{ end }}
-            </div>
-        </div>
+                </div><!-- /pvp-stats -->
+            </div><!-- /character-display -->
+        </div><!-- /site-body -->
     </body>
 </html>
